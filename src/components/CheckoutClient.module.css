@@ -1,0 +1,96 @@
+.checkout {
+  align-items: start;
+  background: var(--surface);
+  display: grid;
+  gap: 42px;
+  grid-template-columns: 0.8fr 1.2fr;
+}
+
+.locked {
+  align-items: center;
+  background: var(--surface);
+  display: grid;
+  gap: 42px;
+  grid-template-columns: 1fr 390px;
+}
+
+.lockCard {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 14px;
+  padding: 28px;
+}
+
+.lockCard svg {
+  color: var(--primary);
+}
+
+.lockCard h2 {
+  font-family: var(--font-playfair), Georgia, serif;
+  letter-spacing: 0;
+}
+
+.lockCard p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.checkout p:last-child {
+  margin-top: 16px;
+}
+
+.form {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+}
+
+.form label {
+  color: var(--muted);
+  display: grid;
+  font-weight: 900;
+  gap: 8px;
+}
+
+.form input,
+.form textarea {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  min-height: 46px;
+  padding: 12px;
+}
+
+.form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.payments {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.payments button {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--primary);
+  font-weight: 900;
+  min-height: 48px;
+}
+
+@media (max-width: 800px) {
+  .checkout,
+  .locked,
+  .payments {
+    grid-template-columns: 1fr;
+  }
+}

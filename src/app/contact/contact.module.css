@@ -1,0 +1,65 @@
+.contact {
+  align-items: start;
+  background: var(--surface);
+  display: grid;
+  gap: 42px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.contact p:last-of-type {
+  margin-top: 16px;
+}
+
+.cards {
+  display: grid;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.cards span,
+.cards a {
+  align-items: center;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--primary);
+  display: flex;
+  font-weight: 900;
+  gap: 10px;
+  padding: 16px;
+}
+
+.form {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+}
+
+.form label {
+  color: var(--muted);
+  display: grid;
+  font-weight: 900;
+  gap: 8px;
+}
+
+.form input,
+.form textarea {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  min-height: 46px;
+  padding: 12px;
+}
+
+.form textarea {
+  min-height: 140px;
+}
+
+@media (max-width: 800px) {
+  .contact {
+    grid-template-columns: 1fr;
+  }
+}

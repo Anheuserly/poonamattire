@@ -1,0 +1,116 @@
+.concierge {
+  align-items: center;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(245, 230, 232, 0.9)),
+    url("https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=1600&q=80");
+  background-position: center;
+  background-size: cover;
+  display: grid;
+  gap: 42px;
+  grid-template-columns: 0.9fr 1.1fr;
+  padding: 88px max(20px, calc((100vw - 1180px) / 2));
+}
+
+.concierge > div:first-child {
+  max-width: 560px;
+}
+
+.concierge p:last-child {
+  margin-top: 18px;
+}
+
+.panel {
+  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.66);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 22px;
+  padding: 24px;
+}
+
+.panel span {
+  color: var(--muted);
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pills button {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--primary);
+  font-weight: 900;
+  min-height: 42px;
+  padding: 0 16px;
+}
+
+.pills .active {
+  background: var(--primary);
+  color: white;
+}
+
+.result {
+  align-items: center;
+  background: #2c121b;
+  border-radius: var(--radius);
+  color: white;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: auto 1fr auto;
+  padding: 22px;
+}
+
+.result svg {
+  color: var(--accent);
+}
+
+.result p {
+  color: rgba(255, 255, 255, 0.68);
+  font-weight: 900;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.result h3 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.45rem;
+  letter-spacing: 0;
+  margin: 4px 0;
+}
+
+.result span {
+  color: rgba(255, 255, 255, 0.74);
+  letter-spacing: 0;
+  margin: 0;
+  text-transform: none;
+}
+
+.result a {
+  align-items: center;
+  background: white;
+  border-radius: 50%;
+  color: var(--primary);
+  display: flex;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+
+@media (max-width: 860px) {
+  .concierge,
+  .result {
+    grid-template-columns: 1fr;
+  }
+}

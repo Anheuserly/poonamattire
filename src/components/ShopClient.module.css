@@ -1,0 +1,129 @@
+.shop {
+  align-items: start;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: 286px 1fr;
+}
+
+.filters {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(139, 30, 63, 0.07);
+  padding: 20px;
+  position: sticky;
+  top: 120px;
+}
+
+.filters h2 {
+  font-family: var(--font-playfair), Georgia, serif;
+  letter-spacing: 0;
+  margin-bottom: 18px;
+}
+
+.filters label {
+  color: var(--muted);
+  display: grid;
+  font-weight: 900;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.filters select,
+.filters input,
+.toolbar select {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.search {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex !important;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.search input {
+  background: transparent;
+  border: 0;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+}
+
+.swatches {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.swatches span {
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--line);
+  height: 26px;
+  width: 26px;
+}
+
+.toolbar {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.toolbar span {
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.toolbar div {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.toolbar button {
+  align-items: center;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--primary);
+  display: flex;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+
+.toolbar .active {
+  background: var(--primary);
+  color: white;
+}
+
+.listMode :global(article) {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+}
+
+@media (max-width: 900px) {
+  .shop,
+  .listMode :global(article) {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
+    position: static;
+  }
+
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

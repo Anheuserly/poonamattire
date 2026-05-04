@@ -1,0 +1,21 @@
+.stage {
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.25), transparent 34%),
+    linear-gradient(135deg, #fff7f5, #f5e6e8);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-height: 360px;
+  overflow: hidden;
+}
+
+.stage canvas {
+  cursor: grab;
+}
+
+@media (max-width: 760px) {
+  .stage {
+    min-height: 300px;
+  }
+}

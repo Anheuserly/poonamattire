@@ -1,0 +1,129 @@
+.empty {
+  background: var(--surface);
+  min-height: 58vh;
+}
+
+.empty h1 {
+  max-width: 720px;
+  margin: 12px 0 24px;
+}
+
+.cart {
+  align-items: start;
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 1fr 360px;
+}
+
+.items {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.items article {
+  align-items: center;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 92px 1fr auto auto;
+  padding: 14px;
+}
+
+.items img {
+  aspect-ratio: 4 / 5;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.items h2,
+.summary h2 {
+  font-family: var(--font-playfair), Georgia, serif;
+  letter-spacing: 0;
+}
+
+.items p {
+  color: var(--muted);
+  margin: 6px 0;
+}
+
+.quantity {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  overflow: hidden;
+}
+
+.quantity button,
+.remove {
+  align-items: center;
+  background: white;
+  border: 0;
+  color: var(--primary);
+  display: flex;
+  height: 38px;
+  justify-content: center;
+  width: 38px;
+}
+
+.quantity span {
+  font-weight: 900;
+  min-width: 34px;
+  text-align: center;
+}
+
+.summary {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: sticky;
+  top: 100px;
+}
+
+.summary label {
+  color: var(--muted);
+  display: grid;
+  font-weight: 900;
+  gap: 8px;
+  margin: 20px 0;
+}
+
+.summary input {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  min-height: 44px;
+  padding: 0 12px;
+}
+
+.summary dl {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.summary dl div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.summary dl div:last-child {
+  border-top: 1px solid var(--line);
+  font-size: 1.25rem;
+  font-weight: 900;
+  padding-top: 14px;
+}
+
+@media (max-width: 900px) {
+  .cart,
+  .items article {
+    grid-template-columns: 1fr;
+  }
+
+  .summary {
+    position: static;
+  }
+}

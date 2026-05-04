@@ -1,0 +1,39 @@
+.about {
+  align-items: center;
+  display: grid;
+  gap: 52px;
+  grid-template-columns: 0.9fr 1.1fr;
+}
+
+.about img {
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  object-fit: cover;
+  width: 100%;
+}
+
+.about p:last-of-type {
+  margin-top: 20px;
+}
+
+.values {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.values span {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--primary);
+  font-weight: 900;
+  padding: 16px;
+}
+
+@media (max-width: 800px) {
+  .about {
+    grid-template-columns: 1fr;
+  }
+}

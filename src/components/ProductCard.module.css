@@ -1,0 +1,139 @@
+.card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 45px rgba(139, 30, 63, 0.08);
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+
+.imageWrap {
+  aspect-ratio: 4 / 5;
+  background: var(--secondary);
+  display: block;
+  overflow: hidden;
+  position: relative;
+}
+
+.imageWrap img {
+  height: 100%;
+  object-fit: cover;
+  transition: transform 400ms ease;
+  width: 100%;
+}
+
+.card:hover .imageWrap img {
+  transform: scale(1.05);
+}
+
+.imageWrap span {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  color: var(--primary);
+  font-size: 0.72rem;
+  font-weight: 900;
+  left: 14px;
+  padding: 7px 10px;
+  position: absolute;
+  top: 14px;
+}
+
+.content {
+  align-items: flex-start;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 18px 18px 8px;
+}
+
+.content p {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.content h3 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.28rem;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+
+.wish,
+.wished {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--primary);
+  display: flex;
+  flex: 0 0 40px;
+  height: 40px;
+  justify-content: center;
+}
+
+.wished {
+  background: var(--primary);
+  color: white;
+}
+
+.meta {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  padding: 0 18px 18px;
+}
+
+.meta span {
+  align-items: center;
+  color: var(--accent);
+  display: flex;
+  font-weight: 900;
+  gap: 5px;
+}
+
+.meta strong {
+  margin-left: auto;
+}
+
+.meta small {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.cart,
+.cartAdded {
+  align-items: center;
+  background: var(--primary);
+  border: 0;
+  color: white;
+  display: flex;
+  font-weight: 900;
+  gap: 10px;
+  justify-content: center;
+  min-height: 48px;
+  transition: background 180ms ease, transform 180ms ease;
+  width: 100%;
+}
+
+.cartAdded {
+  animation: cartPulse 650ms ease;
+  background: #2f7d4f;
+}
+
+@keyframes cartPulse {
+  0% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(1.025);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}

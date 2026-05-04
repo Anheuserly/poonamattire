@@ -1,0 +1,23 @@
+.gate {
+  display: grid;
+  gap: 10px;
+}
+
+.gate p {
+  align-items: center;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--muted);
+  display: flex;
+  font-size: 0.88rem;
+  font-weight: 900;
+  gap: 8px;
+  line-height: 1.5;
+  padding: 12px;
+}
+
+.gate svg {
+  color: var(--primary);
+  flex: 0 0 auto;
+}

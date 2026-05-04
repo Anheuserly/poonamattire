@@ -1,0 +1,168 @@
+:root {
+  --primary: #8b1e3f;
+  --primary-strong: #63142c;
+  --secondary: #f5e6e8;
+  --accent: #d4af37;
+  --background: #ffffff;
+  --surface: #fff9f8;
+  --surface-strong: #f8edef;
+  --ink: #1a1a1a;
+  --muted: #6b6b6b;
+  --line: rgba(139, 30, 63, 0.14);
+  --shadow: 0 24px 70px rgba(99, 20, 44, 0.13);
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--ink);
+  background: var(--background);
+  font-family: var(--font-inter), Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+}
+
+main {
+  min-height: 70vh;
+}
+
+.section {
+  padding: 88px max(20px, calc((100vw - 1180px) / 2));
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  color: var(--primary);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.display {
+  color: var(--ink);
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(2.3rem, 6vw, 5.9rem);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.96;
+}
+
+.title {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.02;
+}
+
+.copy {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.button,
+.buttonSecondary,
+.iconButton {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  display: inline-flex;
+  font-weight: 800;
+  gap: 10px;
+  justify-content: center;
+  min-height: 44px;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.button {
+  background: var(--primary);
+  color: white;
+  padding: 0 18px;
+}
+
+.buttonSecondary {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: var(--line);
+  color: var(--primary);
+  padding: 0 18px;
+}
+
+.iconButton {
+  aspect-ratio: 1;
+  background: white;
+  border-color: var(--line);
+  color: var(--primary);
+  width: 44px;
+}
+
+.button:hover,
+.buttonSecondary:hover,
+.iconButton:hover {
+  transform: translateY(-2px);
+}
+
+.grid {
+  display: grid;
+  gap: 24px;
+}
+
+@media (max-width: 760px) {
+  .section {
+    padding: 58px 18px;
+  }
+
+  .sectionHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .button,
+  .buttonSecondary {
+    width: 100%;
+  }
+}

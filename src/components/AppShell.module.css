@@ -1,0 +1,194 @@
+.toast {
+  align-items: center;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  bottom: 22px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 14px;
+  grid-template-columns: auto 1fr auto;
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 12px;
+  position: fixed;
+  right: 22px;
+  z-index: 60;
+}
+
+.toast img {
+  aspect-ratio: 4 / 5;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.toast span {
+  align-items: center;
+  color: var(--primary);
+  display: flex;
+  font-size: 0.78rem;
+  font-weight: 900;
+  gap: 6px;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.toast strong {
+  display: block;
+  font-family: var(--font-playfair), Georgia, serif;
+  letter-spacing: 0;
+}
+
+.toast p {
+  color: var(--muted);
+  font-size: 0.86rem;
+  margin-top: 3px;
+}
+
+.toast a {
+  background: var(--primary);
+  border-radius: 6px;
+  color: white;
+  font-weight: 900;
+  padding: 12px 14px;
+  white-space: nowrap;
+}
+
+.backdrop {
+  align-items: center;
+  background: rgba(26, 10, 16, 0.58);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 70;
+}
+
+.modal {
+  background: white;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius);
+  box-shadow: 0 34px 100px rgba(20, 8, 13, 0.36);
+  max-height: min(760px, calc(100vh - 40px));
+  max-width: 460px;
+  overflow: auto;
+  padding: 26px;
+  position: relative;
+  width: 100%;
+}
+
+.close {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--primary);
+  display: flex;
+  height: 38px;
+  justify-content: center;
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 38px;
+}
+
+.modalIntro img {
+  border-radius: 50%;
+  height: 64px;
+  object-fit: cover;
+  width: 64px;
+}
+
+.modalIntro h2 {
+  color: var(--primary);
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 2rem;
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 10px 0;
+}
+
+.modalIntro p:last-child {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.tabs {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 22px 0;
+  padding: 5px;
+}
+
+.tabs button {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: var(--primary);
+  font-weight: 900;
+  min-height: 40px;
+}
+
+.tabs .active {
+  background: white;
+  box-shadow: 0 8px 18px rgba(139, 30, 63, 0.1);
+}
+
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.form label {
+  color: var(--muted);
+  display: grid;
+  font-weight: 900;
+  gap: 8px;
+}
+
+.form label span {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 12px;
+}
+
+.form svg {
+  color: var(--primary);
+}
+
+.form input {
+  border: 0;
+  flex: 1;
+  min-width: 0;
+  outline: 0;
+}
+
+.accountNote {
+  background: var(--surface);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.6;
+  margin-top: 18px;
+  padding: 12px;
+}
+
+@media (max-width: 620px) {
+  .toast {
+    grid-template-columns: auto 1fr;
+    left: 16px;
+    right: 16px;
+  }
+
+  .toast a {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+}

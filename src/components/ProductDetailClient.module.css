@@ -1,0 +1,211 @@
+.detail {
+  align-items: start;
+  display: grid;
+  gap: 42px;
+  grid-template-columns: minmax(0, 1fr) 470px;
+}
+
+.gallery {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.gallery img {
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius);
+  object-fit: cover;
+  width: 100%;
+}
+
+.gallery > div {
+  grid-column: 1 / -1;
+}
+
+.info {
+  position: sticky;
+  top: 100px;
+}
+
+.rating {
+  align-items: center;
+  color: var(--accent);
+  display: flex;
+  font-weight: 900;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.price {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.price strong {
+  font-size: 1.55rem;
+}
+
+.price span {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.fabricStory {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 24px;
+}
+
+.fabricStory article {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.fabricStory span {
+  color: var(--muted);
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.fabricStory strong {
+  color: var(--primary);
+}
+
+.switcher {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 24px 0;
+  padding: 5px;
+}
+
+.switcher button,
+.sizes button {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: var(--primary);
+  font-weight: 900;
+  min-height: 42px;
+}
+
+.switcher .active,
+.sizes .activeSize {
+  background: white;
+  box-shadow: 0 8px 18px rgba(139, 30, 63, 0.1);
+}
+
+.info h2 {
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sizes button {
+  border: 1px solid var(--line);
+  min-width: 50px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin: 26px 0;
+}
+
+.addedButton {
+  align-items: center;
+  background: #2f7d4f;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  color: white;
+  display: inline-flex;
+  font-weight: 900;
+  gap: 10px;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  animation: addDetailPulse 650ms ease;
+}
+
+@keyframes addDetailPulse {
+  0% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(1.025);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.notes {
+  background: #2c121b;
+  border-radius: var(--radius);
+  border-top: 0;
+  color: var(--muted);
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+}
+
+.notes span {
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 800;
+}
+
+.previewLoading {
+  align-items: center;
+  aspect-ratio: 1;
+  background: var(--secondary);
+  border-radius: var(--radius);
+  color: var(--primary);
+  display: flex;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 360px;
+}
+
+@media (max-width: 980px) {
+  .detail {
+    grid-template-columns: 1fr;
+  }
+
+  .info {
+    position: static;
+  }
+}
+
+@media (max-width: 620px) {
+  .gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .fabricStory {
+    grid-template-columns: 1fr;
+  }
+}

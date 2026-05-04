@@ -1,0 +1,80 @@
+.orders {
+  background: var(--surface);
+}
+
+.list {
+  display: grid;
+  gap: 18px;
+}
+
+.list article {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 42px rgba(139, 30, 63, 0.08);
+  padding: 22px;
+}
+
+.top {
+  align-items: center;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: auto 1fr auto;
+}
+
+.top svg {
+  color: var(--primary);
+}
+
+.top h2 {
+  font-family: var(--font-playfair), Georgia, serif;
+  letter-spacing: 0;
+}
+
+.top p {
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.timeline {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 22px 0;
+}
+
+.timeline span {
+  background: var(--surface);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  padding: 10px;
+  text-align: center;
+}
+
+.timeline .done {
+  background: var(--primary);
+  color: white;
+}
+
+.list footer {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  display: flex;
+  font-weight: 900;
+  justify-content: space-between;
+  padding-top: 16px;
+}
+
+@media (max-width: 700px) {
+  .top,
+  .timeline {
+    grid-template-columns: 1fr;
+  }
+
+  .list footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
