@@ -165,7 +165,7 @@ export function Footer() {
             <Clock size={15} /> Mon - Sat: 10:00 AM - 7:30 PM
           </span>
           <span className={styles.item}>
-            <MapPin size={15} /> Atelier: Linking Road, Bandra West, Mumbai &amp; Jaipur
+            <MapPin size={15} /> Atelier: A2/04 E1 Vasant Kunj &amp; Delhi
           </span>
           <a
             href="https://www.youtube.com/@PoonamsAttire06"
