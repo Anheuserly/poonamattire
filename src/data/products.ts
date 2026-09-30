@@ -33,7 +33,7 @@ export const collections = [
     name: "Wedding Guest Edit",
     copy: "Premium festive pieces with graceful embroidery and rich festive drape.",
     image:
-      "https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=900&q=80",
   },
 ];
 
@@ -117,10 +117,10 @@ export const products: Product[] = [
     reviews: 211,
     sizes: ["S", "M", "L", "XL"],
     image:
-      "https://images.unsplash.com/photo-1603217040830-34473db521a5?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=900&q=80",
     gallery: [
-      "https://images.unsplash.com/photo-1603217040830-34473db521a5?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=900&q=80",
     ],
     description:
       "A flowing Anarkali with ornate embroidery, soft flare, and a celebratory gold palette for wedding guest dressing.",

@@ -27,15 +27,18 @@ export async function GET(req: Request) {
                    'id', oi.id,
                    'productId', oi.product_id,
                    'productName', oi.product_name,
+                   'name', oi.product_name,
                    'size', oi.size,
                    'price', oi.price,
                    'quantity', oi.quantity,
-                   'imageUrl', oi.image_url
+                   'imageUrl', COALESCE(oi.image_url, p.image),
+                   'image', COALESCE(oi.image_url, p.image)
                  )
                ) FILTER (WHERE oi.id IS NOT NULL), '[]'
              ) as items
       FROM orders o
       LEFT JOIN order_items oi ON o.id = oi.order_id
+      LEFT JOIN products p ON oi.product_id = p.id
     `;
     const params: any[] = [];
 
@@ -66,16 +69,28 @@ export async function GET(req: Request) {
       subtotal: Number(r.subtotal),
       discount: Number(r.discount),
       totalAmount: Number(r.total_amount),
+      total_amount: Number(r.total_amount),
       orderNumber: r.order_number,
+      order_number: r.order_number,
       customerName: r.customer_name,
+      customer_name: r.customer_name,
       customerEmail: r.customer_email,
+      customer_email: r.customer_email,
       customerPhone: r.customer_phone,
+      customer_phone: r.customer_phone,
       shippingAddress: r.shipping_address,
+      shipping_address: r.shipping_address,
       postalCode: r.postal_code,
-      paymentMethod: r.payment_method,
-      paymentStatus: r.payment_status,
-      orderStatus: r.order_status,
+      postal_code: r.postal_code,
+      paymentMethod: r.payment_method || "cod",
+      payment_method: r.payment_method || "cod",
+      paymentStatus: r.payment_status || "pending",
+      payment_status: r.payment_status || "pending",
+      orderStatus: r.order_status || "confirmed",
+      order_status: r.order_status || "confirmed",
       createdAt: r.created_at,
+      created_at: r.created_at,
+      items: r.items || [],
     }));
 
     return NextResponse.json({ success: true, count: orders.length, orders });
