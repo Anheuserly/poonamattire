@@ -3,8 +3,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle2, LockKeyhole, Mail, Phone, UserRound, X } from "lucide-react";
-import { useEffect } from "react";
+import { CheckCircle2, LockKeyhole, Mail, Phone, UserRound, X, AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUiStore } from "@/store/useUiStore";
 import styles from "./AppShell.module.css";
@@ -16,13 +16,63 @@ export function AppShell() {
   const openAuthModal = useUiStore((state) => state.openAuthModal);
   const cartToast = useUiStore((state) => state.cartToast);
   const clearCartToast = useUiStore((state) => state.clearCartToast);
+
   const login = useAuthStore((state) => state.login);
+  const register = useAuthStore((state) => state.register);
+  const initAuth = useAuthStore((state) => state.initAuth);
+  const isLoading = useAuthStore((state) => state.isLoading);
+
+  // Form states
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
 
   useEffect(() => {
     if (!cartToast) return;
     const timeout = window.setTimeout(clearCartToast, 3600);
     return () => window.clearTimeout(timeout);
   }, [cartToast, clearCartToast]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocalError(null);
+
+    if (authMode === "login") {
+      if (!email.trim() || !password.trim()) {
+        setLocalError("Please enter your email and password.");
+        return;
+      }
+      const res = await login(email, password);
+      if (res.success) {
+        closeAuthModal();
+        setEmail("");
+        setPassword("");
+      } else {
+        setLocalError(res.error || "Failed to log in.");
+      }
+    } else {
+      if (!email.trim() || !password.trim() || !fullName.trim() || !phone.trim()) {
+        setLocalError("Please fill in all fields (Name, Email, WhatsApp number, and Password).");
+        return;
+      }
+      const res = await register(email, password, fullName, phone);
+      if (res.success) {
+        closeAuthModal();
+        setEmail("");
+        setPassword("");
+        setFullName("");
+        setPhone("");
+      } else {
+        setLocalError(res.error || "Failed to create account.");
+      }
+    }
+  };
 
   return (
     <>
@@ -83,64 +133,120 @@ export function AppShell() {
                   and receive styling help.
                 </p>
               </div>
+
               <div className={styles.tabs}>
                 <button
+                  type="button"
                   className={authMode === "login" ? styles.active : ""}
-                  onClick={() => openAuthModal("login")}
+                  onClick={() => {
+                    setLocalError(null);
+                    openAuthModal("login");
+                  }}
                 >
                   Login
                 </button>
                 <button
+                  type="button"
                   className={authMode === "register" ? styles.active : ""}
-                  onClick={() => openAuthModal("register")}
+                  onClick={() => {
+                    setLocalError(null);
+                    openAuthModal("register");
+                  }}
                 >
                   Register
                 </button>
               </div>
-              <form className={styles.form}>
+
+              {localError && (
+                <div style={{
+                  padding: "0.75rem 1rem",
+                  background: "#fff0f2",
+                  color: "#d32f2f",
+                  borderRadius: "8px",
+                  fontSize: "0.85rem",
+                  marginBottom: "1rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem"
+                }}>
+                  <AlertCircle size={16} />
+                  <span>{localError}</span>
+                </div>
+              )}
+
+              <form className={styles.form} onSubmit={handleSubmit}>
                 {authMode === "register" ? (
                   <label>
                     Name
                     <span>
                       <UserRound size={17} />
-                      <input placeholder="Your full name" />
+                      <input
+                        placeholder="Your full name"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        required
+                      />
                     </span>
                   </label>
                 ) : null}
+
                 <label>
                   Email
                   <span>
                     <Mail size={17} />
-                    <input placeholder="you@example.com" />
+                    <input
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
                   </span>
                 </label>
+
                 {authMode === "register" ? (
                   <label>
-                    WhatsApp number
+                    WhatsApp / Phone number
                     <span>
                       <Phone size={17} />
-                      <input placeholder="+91 98765 43210" />
+                      <input
+                        placeholder="+91 98765 43210"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        required
+                      />
                     </span>
                   </label>
                 ) : null}
+
                 <label>
                   Password
                   <span>
                     <LockKeyhole size={17} />
-                    <input type="password" placeholder="Password" />
+                    <input
+                      type="password"
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
                   </span>
                 </label>
+
                 <button
                   className="button"
-                  type="button"
-                  onClick={() => {
-                    login();
-                    closeAuthModal();
-                  }}
+                  type="submit"
+                  disabled={isLoading}
+                  style={{ opacity: isLoading ? 0.7 : 1 }}
                 >
-                  {authMode === "login" ? "Login" : "Create account"}
+                  {isLoading
+                    ? "Processing..."
+                    : authMode === "login"
+                    ? "Login"
+                    : "Create account"}
                 </button>
               </form>
+
               <p className={styles.accountNote}>
                 Your account keeps orders, addresses, returns, and support
                 conversations organized in one place.

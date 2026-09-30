@@ -88,7 +88,7 @@ export function Navbar() {
               onClick={() => setAccountOpen((value) => !value)}
             >
               <UserRound size={18} />
-              <span>{customer ? customer.name.split(" ")[0] : "Login"}</span>
+              <span>{customer ? (customer.fullName || customer.name || "Customer").split(" ")[0] : "Login"}</span>
               <ChevronDown size={15} />
             </button>
             {accountOpen ? (
@@ -111,10 +111,7 @@ export function Navbar() {
                     </button>
                     <button
                       onClick={() =>
-                        login({
-                          name: "Poonam Customer",
-                          email: "customer@example.com",
-                        })
+                        login("customer@example.com", "Customer@Poonam2026!")
                       }
                     >
                       Demo login

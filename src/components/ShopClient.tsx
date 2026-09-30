@@ -1,23 +1,48 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Grid2X2, List, Search } from "lucide-react";
-import { products } from "@/data/products";
+import { useEffect, useMemo, useState } from "react";
+import { Grid2X2, List, Search, RefreshCw } from "lucide-react";
+import { products as initialProducts, Product } from "@/data/products";
 import { ProductGrid } from "./ProductGrid";
 import styles from "./ShopClient.module.css";
 
-const categories = ["All", ...Array.from(new Set(products.map((item) => item.category)))];
-const fabrics = ["All", ...Array.from(new Set(products.map((item) => item.fabric)))];
-
 export function ShopClient() {
+  const [productList, setProductList] = useState<Product[]>(initialProducts);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const [fabric, setFabric] = useState("All");
   const [sort, setSort] = useState("featured");
   const [view, setView] = useState<"grid" | "list">("grid");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchLiveProducts = async () => {
+      setLoading(true);
+      try {
+        const apiKey = process.env.NEXT_PUBLIC_API_KEY || "PA_live_key_web_client_2026_poonam_hash";
+        const res = await fetch("/api/products", {
+          headers: { "x-api-key": apiKey },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.products) && data.products.length > 0) {
+            setProductList(data.products);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load live products from API:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLiveProducts();
+  }, []);
+
+  const categories = useMemo(() => ["All", ...Array.from(new Set(productList.map((item) => item.category)))], [productList]);
+  const fabrics = useMemo(() => ["All", ...Array.from(new Set(productList.map((item) => item.fabric)))], [productList]);
 
   const filtered = useMemo(() => {
-    return products
+    return productList
       .filter((product) => {
         const matchesQuery = `${product.name} ${product.color} ${product.fabric}`
           .toLowerCase()
@@ -32,7 +57,7 @@ export function ShopClient() {
         if (sort === "rating") return b.rating - a.rating;
         return b.reviews - a.reviews;
       });
-  }, [category, fabric, query, sort]);
+  }, [category, fabric, productList, query, sort]);
 
   return (
     <section className={`${styles.shop} section`}>
@@ -62,41 +87,44 @@ export function ShopClient() {
             ))}
           </select>
         </label>
-        <div className={styles.swatches}>
-          {["#8B1E3F", "#F5E6E8", "#D4AF37", "#0F766E", "#EAB308"].map((color) => (
-            <span style={{ background: color }} key={color} />
-          ))}
-        </div>
+        <label>
+          Sort by
+          <select value={sort} onChange={(event) => setSort(event.target.value)}>
+            <option value="featured">Featured / Popular</option>
+            <option value="low">Price: Low to High</option>
+            <option value="high">Price: High to Low</option>
+            <option value="rating">Top Rated</option>
+          </select>
+        </label>
       </aside>
-      <div>
-        <div className={styles.toolbar}>
-          <span>{filtered.length} styles matched</span>
-          <div>
+
+      <div className={styles.content}>
+        <div className={styles.topbar}>
+          <p>
+            Showing <strong>{filtered.length}</strong> handcrafted outfits
+            {loading ? " (syncing live...)" : ""}
+          </p>
+          <div className={styles.viewToggle}>
             <button
               className={view === "grid" ? styles.active : ""}
-              aria-label="Grid view"
               onClick={() => setView("grid")}
+              type="button"
+              aria-label="Grid view"
             >
               <Grid2X2 size={18} />
             </button>
             <button
               className={view === "list" ? styles.active : ""}
-              aria-label="List view"
               onClick={() => setView("list")}
+              type="button"
+              aria-label="List view"
             >
               <List size={18} />
             </button>
-            <select value={sort} onChange={(event) => setSort(event.target.value)}>
-              <option value="featured">Featured</option>
-              <option value="low">Price: low to high</option>
-              <option value="high">Price: high to low</option>
-              <option value="rating">Top rated</option>
-            </select>
           </div>
         </div>
-        <div className={view === "list" ? styles.listMode : ""}>
-          <ProductGrid products={filtered} />
-        </div>
+
+        <ProductGrid products={filtered} />
       </div>
     </section>
   );
