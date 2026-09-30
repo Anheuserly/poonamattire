@@ -30,6 +30,7 @@ const accountLinks = [
   { href: "/profile", label: "Dashboard" },
   { href: "/orders", label: "Orders" },
   { href: "/track-order", label: "Track order" },
+  { href: "/admin", label: "Admin Portal" },
   { href: "/shop", label: "Wishlist" },
 ];
 

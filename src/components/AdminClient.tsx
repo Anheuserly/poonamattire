@@ -1,22 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   BarChart3,
   PackagePlus,
   ShoppingBag,
-  Upload,
   RefreshCw,
   CheckCircle2,
   AlertCircle,
   KeyRound,
   Trash2,
   ExternalLink,
-  Layers,
+  Edit,
+  Search,
+  Filter,
+  Eye,
+  EyeOff,
   Phone,
   Mail,
   MapPin,
+  Calendar,
+  X,
+  Plus,
+  Minus,
+  Sparkles,
+  Truck,
+  Check,
 } from "lucide-react";
 import { formatPrice } from "@/data/products";
 import styles from "@/app/admin/admin.module.css";
@@ -40,7 +51,12 @@ type ProductItem = {
   price: number;
   mrp: number;
   stock: number;
+  sizes: string[];
   image: string;
+  gallery?: string[];
+  description: string;
+  tags?: string[];
+  is_featured?: boolean;
   is_active: boolean;
 };
 
@@ -55,6 +71,8 @@ type OrderItem = {
   state: string;
   postalCode: string;
   totalAmount: number;
+  subtotal?: number;
+  discount?: number;
   orderStatus: string;
   paymentMethod: string;
   paymentStatus: string;
@@ -84,18 +102,44 @@ export function AdminClient() {
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // New product form state
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("Festive");
-  const [fabric, setFabric] = useState("Silk Blend");
-  const [color, setColor] = useState("Maroon");
-  const [price, setPrice] = useState("");
-  const [mrp, setMrp] = useState("");
-  const [stock, setStock] = useState("30");
-  const [sizes, setSizes] = useState("XS, S, M, L, XL");
-  const [imageUrl, setImageUrl] = useState("");
-  const [description, setDescription] = useState("");
-  const [submittingProduct, setSubmittingProduct] = useState(false);
+  // Filters
+  const [productSearch, setProductSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [orderSearch, setOrderSearch] = useState("");
+  const [orderStatusFilter, setOrderStatusFilter] = useState("All");
+
+  // Add Product Modal
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addForm, setAddForm] = useState({
+    name: "",
+    category: "Festive",
+    fabric: "Silk Blend",
+    color: "Maroon",
+    price: "",
+    mrp: "",
+    stock: "25",
+    sizes: "XS, S, M, L, XL",
+    image: "",
+    description: "",
+  });
+  const [submittingAdd, setSubmittingAdd] = useState(false);
+
+  // Edit Product Modal
+  const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    category: "",
+    fabric: "",
+    color: "",
+    price: "",
+    mrp: "",
+    stock: "",
+    sizes: "",
+    image: "",
+    description: "",
+    is_active: true,
+  });
+  const [submittingEdit, setSubmittingEdit] = useState(false);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -145,14 +189,20 @@ export function AdminClient() {
     fetchDashboardData();
   }, []);
 
+  // Quick Notification Helper
+  const showToast = (type: "success" | "error", text: string) => {
+    setMessage({ type, text });
+    window.setTimeout(() => setMessage(null), 4500);
+  };
+
+  // 1. Add Product Handler
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
-    setSubmittingProduct(true);
+    setSubmittingAdd(true);
 
     try {
       const apiKey = process.env.NEXT_PUBLIC_API_KEY || "PA_live_key_web_client_2026_poonam_hash";
-      const sizeArray = sizes.split(",").map((s) => s.trim()).filter(Boolean);
+      const sizeArray = addForm.sizes.split(",").map((s) => s.trim()).filter(Boolean);
 
       const res = await fetch("/api/products", {
         method: "POST",
@@ -161,18 +211,18 @@ export function AdminClient() {
           "x-api-key": apiKey,
         },
         body: JSON.stringify({
-          name,
-          category,
-          fabric,
-          color,
-          price: Number(price),
-          mrp: Number(mrp || price),
-          stock: Number(stock || 30),
+          name: addForm.name,
+          category: addForm.category,
+          fabric: addForm.fabric,
+          color: addForm.color,
+          price: Number(addForm.price),
+          mrp: Number(addForm.mrp || addForm.price),
+          stock: Number(addForm.stock || 25),
           sizes: sizeArray.length > 0 ? sizeArray : ["XS", "S", "M", "L", "XL"],
-          image: imageUrl || "https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=900&q=80",
-          gallery: [imageUrl || "https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=900&q=80"],
-          description: description || `${name} handcrafted in ${fabric}.`,
-          tags: ["New Arrival", category],
+          image: addForm.image || "https://images.unsplash.com/photo-1594226801341-41427b4e5c22?auto=format&fit=crop&w=900&q=80",
+          gallery: [addForm.image || "https://images.unsplash.com/photo-1594226801341-41427b4e5c22?auto=format&fit=crop&w=900&q=80"],
+          description: addForm.description || `${addForm.name} handcrafted in ${addForm.fabric}.`,
+          tags: ["New Arrival", addForm.category],
         }),
       });
 
@@ -181,20 +231,161 @@ export function AdminClient() {
         throw new Error(data.error || "Failed to add dress.");
       }
 
-      setMessage({ type: "success", text: `"${name}" added successfully to the live collection!` });
-      setName("");
-      setPrice("");
-      setMrp("");
-      setImageUrl("");
-      setDescription("");
+      showToast("success", `"${addForm.name}" added successfully to the catalog!`);
+      setShowAddModal(false);
+      setAddForm({
+        name: "",
+        category: "Festive",
+        fabric: "Silk Blend",
+        color: "Maroon",
+        price: "",
+        mrp: "",
+        stock: "25",
+        sizes: "XS, S, M, L, XL",
+        image: "",
+        description: "",
+      });
       fetchDashboardData();
     } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "Failed to add product." });
+      showToast("error", err.message || "Failed to add product.");
     } finally {
-      setSubmittingProduct(false);
+      setSubmittingAdd(false);
     }
   };
 
+  // 2. Open Edit Modal
+  const openEditModal = (p: ProductItem) => {
+    setEditingProduct(p);
+    setEditForm({
+      name: p.name,
+      category: p.category,
+      fabric: p.fabric,
+      color: p.color,
+      price: String(p.price),
+      mrp: String(p.mrp),
+      stock: String(p.stock),
+      sizes: (p.sizes || []).join(", "),
+      image: p.image,
+      description: p.description || "",
+      is_active: p.is_active,
+    });
+  };
+
+  // 3. Save Edit Product
+  const handleSaveEditProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    setSubmittingEdit(true);
+
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_API_KEY || "PA_live_key_web_client_2026_poonam_hash";
+      const sizeArray = editForm.sizes.split(",").map((s) => s.trim()).filter(Boolean);
+
+      const res = await fetch(`/api/products/${editingProduct.slug || editingProduct.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          name: editForm.name,
+          category: editForm.category,
+          fabric: editForm.fabric,
+          color: editForm.color,
+          price: Number(editForm.price),
+          mrp: Number(editForm.mrp),
+          stock: Number(editForm.stock),
+          sizes: sizeArray,
+          image: editForm.image,
+          description: editForm.description,
+          is_active: editForm.is_active,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to update dress.");
+      }
+
+      showToast("success", `"${editForm.name}" updated successfully.`);
+      setEditingProduct(null);
+      fetchDashboardData();
+    } catch (err: any) {
+      showToast("error", err.message || "Failed to update product.");
+    } finally {
+      setSubmittingEdit(false);
+    }
+  };
+
+  // 4. Quick Stock Adjustment
+  const handleQuickStock = async (product: ProductItem, delta: number) => {
+    const newStock = Math.max(0, product.stock + delta);
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_API_KEY || "PA_live_key_web_client_2026_poonam_hash";
+      const res = await fetch(`/api/products/${product.slug || product.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+        },
+        body: JSON.stringify({ stock: newStock }),
+      });
+      if (res.ok) {
+        setProducts((prev) =>
+          prev.map((p) => (p.id === product.id ? { ...p, stock: newStock } : p))
+        );
+      }
+    } catch (e) {
+      console.error("Failed to adjust stock", e);
+    }
+  };
+
+  // 5. Toggle Active Status
+  const handleToggleActive = async (product: ProductItem) => {
+    const newActive = !product.is_active;
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_API_KEY || "PA_live_key_web_client_2026_poonam_hash";
+      const res = await fetch(`/api/products/${product.slug || product.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+        },
+        body: JSON.stringify({ is_active: newActive }),
+      });
+      if (res.ok) {
+        setProducts((prev) =>
+          prev.map((p) => (p.id === product.id ? { ...p, is_active: newActive } : p))
+        );
+        showToast("success", `"${product.name}" is now ${newActive ? "Active" : "Archived"}.`);
+      }
+    } catch (e) {
+      console.error("Failed to toggle status", e);
+    }
+  };
+
+  // 6. Delete Product
+  const handleDeleteProduct = async (slugOrId: string, prodName: string) => {
+    if (!confirm(`Are you sure you want to permanently delete "${prodName}" from inventory?`)) return;
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_API_KEY || "PA_live_key_web_client_2026_poonam_hash";
+      const res = await fetch(`/api/products/${slugOrId}`, {
+        method: "DELETE",
+        headers: { "x-api-key": apiKey },
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to delete product.");
+      }
+
+      showToast("success", `Product "${prodName}" deleted.`);
+      fetchDashboardData();
+    } catch (err: any) {
+      showToast("error", err.message || "Failed to delete product.");
+    }
+  };
+
+  // 7. Update Order Status
   const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
       const apiKey = process.env.NEXT_PUBLIC_API_KEY || "PA_live_key_web_client_2026_poonam_hash";
@@ -209,481 +400,849 @@ export function AdminClient() {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to update order.");
+        throw new Error(data.error || "Failed to update order status.");
       }
 
-      setMessage({ type: "success", text: `Order status updated to "${newStatus}".` });
+      showToast("success", `Order #${orderId} marked as "${newStatus}".`);
       fetchDashboardData();
     } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "Failed to update status." });
+      showToast("error", err.message || "Failed to update order status.");
     }
   };
 
-  const handleDeleteProduct = async (slugOrId: string, prodName: string) => {
-    if (!confirm(`Are you sure you want to remove "${prodName}" from inventory?`)) return;
-    try {
-      const apiKey = process.env.NEXT_PUBLIC_API_KEY || "PA_live_key_web_client_2026_poonam_hash";
-      const res = await fetch(`/api/products/${slugOrId}`, {
-        method: "DELETE",
-        headers: { "x-api-key": apiKey },
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to delete product.");
-      }
+  // Filtered Products
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const matchSearch =
+        p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+        p.category.toLowerCase().includes(productSearch.toLowerCase()) ||
+        p.fabric.toLowerCase().includes(productSearch.toLowerCase());
+      const matchCategory =
+        selectedCategory === "All" || p.category.toLowerCase() === selectedCategory.toLowerCase();
+      return matchSearch && matchCategory;
+    });
+  }, [products, productSearch, selectedCategory]);
 
-      setMessage({ type: "success", text: `Product "${prodName}" removed.` });
-      fetchDashboardData();
-    } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "Failed to delete product." });
-    }
-  };
+  // Filtered Orders
+  const filteredOrders = useMemo(() => {
+    return orders.filter((o) => {
+      const matchSearch =
+        o.orderNumber.toLowerCase().includes(orderSearch.toLowerCase()) ||
+        o.customerName.toLowerCase().includes(orderSearch.toLowerCase()) ||
+        o.customerPhone.includes(orderSearch);
+      const matchStatus =
+        orderStatusFilter === "All" || o.orderStatus.toLowerCase() === orderStatusFilter.toLowerCase();
+      return matchSearch && matchStatus;
+    });
+  }, [orders, orderSearch, orderStatusFilter]);
 
   return (
-    <main className={`${styles.admin} section`}>
-      <div className="sectionHeader" style={{ alignItems: "center" }}>
+    <main className={styles.admin}>
+      {/* Top Header */}
+      <div className={styles.adminHeader}>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.25rem" }}>
-            <span style={{
-              background: "#e8f5e9",
-              color: "#2e7d32",
-              padding: "3px 10px",
-              borderRadius: "12px",
-              fontSize: "0.75rem",
-              fontWeight: 700,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "4px"
-            }}>
-              <CheckCircle2 size={13} /> Live PostgreSQL: vps.amcmep.in (poonamattire)
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
+            <span style={{ background: "#e8f5e9", color: "#2e7d32", padding: "3px 10px", borderRadius: "12px", fontSize: "0.76rem", fontWeight: 700 }}>
+              POSTGRESQL LIVE CONNECTED
+            </span>
+            <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>
+              Database: <code>poonamattire</code> on <code>vps.amcmep.in</code>
             </span>
           </div>
-          <h1 className="title">Boutique Operations & Admin Portal</h1>
+          <h1 className={styles.adminTitle}>Atelier Boutique Control Center</h1>
         </div>
-        <button
-          className="buttonSecondary"
-          onClick={fetchDashboardData}
-          disabled={loading}
-          style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-        >
-          <RefreshCw size={16} className={loading ? "spin" : ""} /> Refresh Data
-        </button>
+
+        <div className={styles.adminHeaderActions}>
+          <button
+            type="button"
+            className="button"
+            onClick={() => setShowAddModal(true)}
+            style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+          >
+            <PackagePlus size={18} /> Add New Dress
+          </button>
+          <button
+            type="button"
+            className="buttonSecondary"
+            onClick={fetchDashboardData}
+            title="Refresh database records"
+          >
+            <RefreshCw size={16} /> Refresh
+          </button>
+          <Link href="/shop" target="_blank" className="buttonSecondary" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+            View Boutique <ExternalLink size={15} />
+          </Link>
+        </div>
       </div>
 
+      {/* Message Banner */}
       {message && (
-        <div style={{
-          padding: "1rem 1.25rem",
-          background: message.type === "success" ? "#e8f5e9" : "#fff0f2",
-          color: message.type === "success" ? "#2e7d32" : "#d32f2f",
-          borderRadius: "8px",
-          marginBottom: "1.5rem",
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem"
-        }}>
+        <div
+          style={{
+            background: message.type === "success" ? "#e8f5e9" : "#ffebee",
+            border: `1px solid ${message.type === "success" ? "#c8e6c9" : "#ffcdd2"}`,
+            color: message.type === "success" ? "#2e7d32" : "#c62828",
+            padding: "14px 20px",
+            borderRadius: "var(--radius)",
+            marginBottom: "24px",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            fontWeight: 600,
+          }}
+        >
           {message.type === "success" ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
           <span>{message.text}</span>
         </div>
       )}
 
-      {/* Stats Cards */}
-      <div className={styles.stats}>
-        <article>
-          <PackagePlus />
-          <strong>{stats.productsCount}</strong>
-          <span>Live Attire Collections</span>
+      {/* 4 Stats Cards */}
+      <div className={styles.statsGrid}>
+        <article className={styles.statCard}>
+          <div className={styles.statCardTop}>
+            <span className={styles.statLabel}>TOTAL GROSS REVENUE</span>
+            <div className={styles.statIcon} style={{ background: "#fcf4f7", color: "var(--primary)" }}>
+              <BarChart3 size={20} />
+            </div>
+          </div>
+          <strong className={styles.statValue}>{formatPrice(stats.totalRevenue)}</strong>
+          <span style={{ fontSize: "0.78rem", color: "#2e7d32", fontWeight: 600 }}>
+            Active customer billing
+          </span>
         </article>
-        <article>
-          <ShoppingBag />
-          <strong>{stats.openOrdersCount}</strong>
-          <span>Open Orders Pipeline</span>
+
+        <article className={styles.statCard}>
+          <div className={styles.statCardTop}>
+            <span className={styles.statLabel}>PIPELINE ORDERS</span>
+            <div className={styles.statIcon} style={{ background: "#e3f2fd", color: "#1565c0" }}>
+              <ShoppingBag size={20} />
+            </div>
+          </div>
+          <strong className={styles.statValue}>{stats.totalOrdersCount}</strong>
+          <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
+            {stats.openOrdersCount} in tailoring / active dispatch
+          </span>
         </article>
-        <article>
-          <BarChart3 />
-          <strong>{formatPrice(stats.totalRevenue)}</strong>
-          <span>Total Billed Revenue</span>
+
+        <article className={styles.statCard}>
+          <div className={styles.statCardTop}>
+            <span className={styles.statLabel}>CATALOG DESIGNS</span>
+            <div className={styles.statIcon} style={{ background: "#f3e5f5", color: "#7b1fa2" }}>
+              <Sparkles size={20} />
+            </div>
+          </div>
+          <strong className={styles.statValue}>{stats.productsCount}</strong>
+          <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
+            Handcrafted luxury silhouettes
+          </span>
+        </article>
+
+        <article className={styles.statCard}>
+          <div className={styles.statCardTop}>
+            <span className={styles.statLabel}>INVENTORY ALERTS</span>
+            <div className={styles.statIcon} style={{ background: stats.lowStockCount > 0 ? "#fff3e0" : "#e8f5e9", color: stats.lowStockCount > 0 ? "#e65100" : "#2e7d32" }}>
+              <AlertCircle size={20} />
+            </div>
+          </div>
+          <strong className={styles.statValue}>{stats.lowStockCount}</strong>
+          <span style={{ fontSize: "0.78rem", color: stats.lowStockCount > 0 ? "#e65100" : "#2e7d32", fontWeight: 600 }}>
+            {stats.lowStockCount > 0 ? "Low stock items (<10)" : "All stock levels optimal"}
+          </span>
         </article>
       </div>
 
-      {/* Tabs */}
-      <div style={{
-        display: "flex",
-        gap: "1rem",
-        marginBottom: "1.5rem",
-        borderBottom: "1px solid var(--line)",
-        paddingBottom: "0.5rem"
-      }}>
+      {/* Main Tabs */}
+      <div className={styles.tabsBar}>
         <button
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: activeTab === "catalog" ? 700 : 500,
-            color: activeTab === "catalog" ? "#8B1E3F" : "#666",
-            borderBottom: activeTab === "catalog" ? "3px solid #8B1E3F" : "none",
-            paddingBottom: "8px",
-            fontSize: "1rem"
-          }}
+          type="button"
           onClick={() => setActiveTab("catalog")}
+          className={`${styles.tabBtn} ${activeTab === "catalog" ? styles.tabBtnActive : ""}`}
         >
-          Dresses & Inventory ({products.length})
+          <Sparkles size={18} /> Dresses &amp; Inventory ({products.length})
         </button>
         <button
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: activeTab === "orders" ? 700 : 500,
-            color: activeTab === "orders" ? "#8B1E3F" : "#666",
-            borderBottom: activeTab === "orders" ? "3px solid #8B1E3F" : "none",
-            paddingBottom: "8px",
-            fontSize: "1rem"
-          }}
+          type="button"
           onClick={() => setActiveTab("orders")}
+          className={`${styles.tabBtn} ${activeTab === "orders" ? styles.tabBtnActive : ""}`}
         >
-          Customer Orders ({orders.length})
+          <Truck size={18} /> Customer Orders ({orders.length})
         </button>
         <button
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: activeTab === "keys" ? 700 : 500,
-            color: activeTab === "keys" ? "#8B1E3F" : "#666",
-            borderBottom: activeTab === "keys" ? "3px solid #8B1E3F" : "none",
-            paddingBottom: "8px",
-            fontSize: "1rem"
-          }}
+          type="button"
           onClick={() => setActiveTab("keys")}
+          className={`${styles.tabBtn} ${activeTab === "keys" ? styles.tabBtnActive : ""}`}
         >
-          API Keys & Scopes
+          <KeyRound size={18} /> API Keys &amp; Database Architecture
         </button>
       </div>
 
-      {/* TAB 1: Catalog & Add Dress */}
+      {/* TAB 1: CATALOG MANAGEMENT */}
       {activeTab === "catalog" && (
-        <section className={styles.panel}>
-          <form onSubmit={handleAddProduct}>
-            <h2>Add New Dress Collection</h2>
-            <p style={{ fontSize: "0.85rem", color: "#666", marginTop: "-8px" }}>
-              Creates an authentic record in the PostgreSQL <code>products</code> table.
-            </p>
-            <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", fontWeight: 600 }}>
-              Dress Title
+        <section>
+          {/* Search & Category Filter Controls */}
+          <div className={styles.catalogControls}>
+            <div className={styles.searchWrap}>
+              <Search size={18} color="var(--muted)" />
               <input
-                placeholder="e.g. Meera Chanderi Anarkali"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
+                placeholder="Search dresses by name, fabric, or color..."
+                value={productSearch}
+                onChange={(e) => setProductSearch(e.target.value)}
               />
-            </label>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", fontWeight: 600 }}>
-                Category
-                <select value={category} onChange={(e) => setCategory(e.target.value)}>
-                  <option value="Festive">Festive</option>
-                  <option value="Occasion">Occasion</option>
-                  <option value="Wedding">Wedding</option>
-                  <option value="Casual">Casual</option>
-                  <option value="Workwear">Workwear</option>
-                </select>
-              </label>
-              <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", fontWeight: 600 }}>
-                Fabric
-                <select value={fabric} onChange={(e) => setFabric(e.target.value)}>
-                  <option value="Silk Blend">Silk Blend</option>
-                  <option value="Chanderi">Chanderi</option>
-                  <option value="Pure Cotton">Pure Cotton</option>
-                  <option value="Georgette">Georgette</option>
-                  <option value="Banarasi Silk">Banarasi Silk</option>
-                  <option value="Linen">Linen</option>
-                  <option value="Rayon">Rayon</option>
-                </select>
-              </label>
+              {productSearch && (
+                <button type="button" onClick={() => setProductSearch("")} style={{ background: "none", border: 0, cursor: "pointer", color: "var(--muted)" }}>
+                  <X size={16} />
+                </button>
+              )}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
-              <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", fontWeight: 600 }}>
-                Color
-                <input
-                  placeholder="e.g. Maroon"
-                  value={color}
-                  onChange={(e) => setColor(e.target.value)}
-                  required
-                />
-              </label>
-              <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", fontWeight: 600 }}>
-                Price (INR)
-                <input
-                  type="number"
-                  placeholder="4299"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  required
-                />
-              </label>
-              <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", fontWeight: 600 }}>
-                MRP (INR)
-                <input
-                  type="number"
-                  placeholder="5899"
-                  value={mrp}
-                  onChange={(e) => setMrp(e.target.value)}
-                />
-              </label>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", fontWeight: 600 }}>
-                Stock Count
-                <input
-                  type="number"
-                  placeholder="30"
-                  value={stock}
-                  onChange={(e) => setStock(e.target.value)}
-                />
-              </label>
-              <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", fontWeight: 600 }}>
-                Available Sizes
-                <input
-                  placeholder="XS, S, M, L, XL"
-                  value={sizes}
-                  onChange={(e) => setSizes(e.target.value)}
-                />
-              </label>
-            </div>
-            <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", fontWeight: 600 }}>
-              Primary Image URL
-              <input
-                placeholder="https://images.unsplash.com/..."
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-              />
-            </label>
-            <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", fontWeight: 600 }}>
-              Description & Styling
-              <textarea
-                style={{
-                  border: "1px solid var(--line)",
-                  borderRadius: "var(--radius)",
-                  padding: "8px 12px",
-                  minHeight: "70px"
-                }}
-                placeholder="Artisanal weave with ornate neckline..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </label>
-            <button className="button" type="submit" disabled={submittingProduct}>
-              <Upload size={18} /> {submittingProduct ? "Saving to Database..." : "Save Product"}
-            </button>
-          </form>
 
-          <div>
-            <h2>Live Inventory ({products.length})</h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", overflowY: "auto", maxHeight: "640px" }}>
-              {products.map((product) => (
-                <article key={product.id} style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "10px", borderBottom: "1px solid var(--line)" }}>
-                  {product.image && (
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      width={48}
-                      height={60}
-                      style={{ objectFit: "cover", borderRadius: "4px" }}
-                    />
-                  )}
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <strong>{product.name}</strong>
-                      <span style={{ fontSize: "0.75rem", background: "#f0f0f0", padding: "2px 6px", borderRadius: "4px" }}>
-                        {product.category}
-                      </span>
-                    </div>
-                    <p style={{ fontSize: "0.8rem", color: "#666", margin: "2px 0" }}>
-                      Fabric: {product.fabric} &bull; Color: {product.color} &bull; Stock: <strong>{product.stock}</strong>
-                    </p>
-                    <span style={{ fontWeight: 700, color: "#8B1E3F" }}>{formatPrice(product.price)}</span>
-                    {product.mrp > product.price && (
-                      <span style={{ textDecoration: "line-through", color: "#999", fontSize: "0.8rem", marginLeft: "6px" }}>
-                        {formatPrice(product.mrp)}
+            <div className={styles.filterPills}>
+              {["All", "Festive", "Wedding", "Occasion", "Casual", "Workwear"].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`${styles.filterPill} ${selectedCategory === cat ? styles.filterPillActive : ""}`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Products Table Card */}
+          <div className={styles.productTableCard}>
+            <div style={{ display: "grid", gridTemplateColumns: "70px 1.8fr 1fr 1fr 1.2fr 100px 110px", gap: "16px", padding: "14px 20px", background: "#fbf5f7", borderBottom: "1px solid var(--line)", fontSize: "0.78rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              <span>Photo</span>
+              <span>Dress Name &amp; Silhouette</span>
+              <span>Category / Fabric</span>
+              <span>Price &amp; MRP</span>
+              <span>Stock Adjustment</span>
+              <span>Status</span>
+              <span style={{ textAlign: "right" }}>Actions</span>
+            </div>
+
+            {filteredProducts.length === 0 ? (
+              <div style={{ padding: "48px 24px", textAlign: "center", color: "var(--muted)" }}>
+                No dresses match the current filter criteria.
+              </div>
+            ) : (
+              filteredProducts.map((p) => (
+                <div key={p.id} className={styles.productRow}>
+                  <Image
+                    src={p.image}
+                    alt={p.name}
+                    width={64}
+                    height={80}
+                    className={styles.thumbImg}
+                  />
+
+                  <div className={styles.productTitleCol}>
+                    <Link href={`/product/${p.slug}`} target="_blank" style={{ textDecoration: "none" }}>
+                      <strong>{p.name}</strong>
+                    </Link>
+                    <p>Color: {p.color} &bull; Sizes: {(p.sizes || []).join(", ")}</p>
+                  </div>
+
+                  <div>
+                    <span style={{ background: "var(--surface)", border: "1px solid var(--line)", padding: "3px 8px", borderRadius: "4px", fontSize: "0.82rem", fontWeight: 600 }}>
+                      {p.category}
+                    </span>
+                    <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>{p.fabric}</p>
+                  </div>
+
+                  <div>
+                    <strong style={{ color: "var(--primary)", fontSize: "1.05rem" }}>{formatPrice(p.price)}</strong>
+                    {p.mrp > p.price && (
+                      <span style={{ fontSize: "0.8rem", color: "#999", textDecoration: "line-through", display: "block" }}>
+                        {formatPrice(p.mrp)}
                       </span>
                     )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteProduct(product.slug || product.id, product.name)}
-                    style={{ background: "#fff0f2", border: "1px solid #ffcdd2", color: "#d32f2f", borderRadius: "6px", cursor: "pointer", padding: "6px 10px" }}
-                    title="Remove product"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </article>
-              ))}
-            </div>
+
+                  {/* Stock with Steppers */}
+                  <div className={styles.stockCol}>
+                    <button
+                      type="button"
+                      className={styles.stockBtn}
+                      onClick={() => handleQuickStock(p, -1)}
+                      title="Decrease stock by 1"
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <span style={{
+                      fontWeight: 700,
+                      minWidth: "36px",
+                      textAlign: "center",
+                      color: p.stock <= 5 ? "#d32f2f" : p.stock < 15 ? "#f57c00" : "var(--ink)",
+                    }}>
+                      {p.stock}
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.stockBtn}
+                      onClick={() => handleQuickStock(p, 1)}
+                      title="Increase stock by 1"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+
+                  {/* Status Toggle */}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleActive(p)}
+                      style={{
+                        background: p.is_active ? "#e8f5e9" : "#ffebee",
+                        color: p.is_active ? "#2e7d32" : "#c62828",
+                        border: `1px solid ${p.is_active ? "#c8e6c9" : "#ffcdd2"}`,
+                        borderRadius: "12px",
+                        fontSize: "0.76rem",
+                        fontWeight: 700,
+                        padding: "3px 10px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {p.is_active ? "LIVE" : "HIDDEN"}
+                    </button>
+                  </div>
+
+                  {/* Actions */}
+                  <div className={styles.actionsCol}>
+                    <button
+                      type="button"
+                      className={styles.iconActionBtn}
+                      onClick={() => openEditModal(p)}
+                      title="Edit dress details"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.iconActionBtn} ${styles.deleteBtn}`}
+                      onClick={() => handleDeleteProduct(p.slug || p.id, p.name)}
+                      title="Delete from database"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </section>
       )}
 
-      {/* TAB 2: Customer Orders */}
+      {/* TAB 2: ORDER PIPELINE MANAGEMENT */}
       {activeTab === "orders" && (
-        <section style={{ background: "white", padding: "24px", borderRadius: "var(--radius)", border: "1px solid var(--line)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-            <div>
-              <h2>Customer Order Pipeline</h2>
-              <p style={{ color: "#666", fontSize: "0.9rem" }}>
-                Live orders received from web and mobile clients, backed by the PostgreSQL <code>orders</code> and <code>order_items</code> tables.
-              </p>
+        <section>
+          {/* Order Search & Status Filter */}
+          <div className={styles.catalogControls}>
+            <div className={styles.searchWrap}>
+              <Search size={18} color="var(--muted)" />
+              <input
+                placeholder="Search orders by Order #, Customer Name, or Phone..."
+                value={orderSearch}
+                onChange={(e) => setOrderSearch(e.target.value)}
+              />
+              {orderSearch && (
+                <button type="button" onClick={() => setOrderSearch("")} style={{ background: "none", border: 0, cursor: "pointer", color: "var(--muted)" }}>
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+
+            <div className={styles.filterPills}>
+              {["All", "Confirmed", "Processing", "Shipped", "Delivered", "Cancelled"].map((st) => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setOrderStatusFilter(st)}
+                  className={`${styles.filterPill} ${orderStatusFilter === st ? styles.filterPillActive : ""}`}
+                >
+                  {st}
+                </button>
+              ))}
             </div>
           </div>
 
-          {orders.length === 0 ? (
-            <p>No orders recorded yet.</p>
+          {/* Orders List */}
+          {filteredOrders.length === 0 ? (
+            <div style={{ background: "white", padding: "48px 24px", textAlign: "center", borderRadius: "var(--radius)", border: "1px solid var(--line)", color: "var(--muted)" }}>
+              No customer orders match the search criteria.
+            </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              {orders.map((order) => (
-                <div
-                  key={order.id}
-                  style={{
-                    border: "1px solid var(--line)",
-                    borderRadius: "8px",
-                    padding: "16px",
-                    background: "#fafafa"
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem", borderBottom: "1px solid #eee", paddingBottom: "12px", marginBottom: "12px" }}>
+            <div className={styles.ordersList}>
+              {filteredOrders.map((order) => (
+                <article key={order.id} className={styles.orderCard}>
+                  {/* Card Header */}
+                  <div className={styles.orderCardHeader}>
                     <div>
-                      <span style={{ fontWeight: 700, fontSize: "1.1rem", color: "#8B1E3F" }}>
+                      <span style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "1.3rem", fontWeight: 700, color: "var(--primary)" }}>
                         #{order.orderNumber}
                       </span>
-                      <span style={{ marginLeft: "10px", fontSize: "0.85rem", color: "#888" }}>
-                        {new Date(order.createdAt).toLocaleString("en-IN")}
+                      <span style={{ marginLeft: "14px", fontSize: "0.85rem", color: "var(--muted)" }}>
+                        Placed on {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                      <span style={{ fontSize: "1.1rem", fontWeight: 700 }}>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                      <span style={{ fontSize: "1.35rem", fontWeight: 700, color: "var(--ink)" }}>
                         {formatPrice(order.totalAmount)}
                       </span>
                       <select
                         value={order.orderStatus}
                         onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                        className={styles.statusDropdown}
                         style={{
-                          padding: "6px 12px",
-                          borderRadius: "6px",
-                          border: "1px solid #ccc",
-                          fontWeight: 600,
                           background:
                             order.orderStatus === "delivered"
                               ? "#e8f5e9"
                               : order.orderStatus === "shipped"
-                              ? "#e3f2fd"
+                              ? "#ede7f6"
                               : order.orderStatus === "processing"
-                              ? "#fff9c4"
-                              : "#f5f5f5",
+                              ? "#e3f2fd"
+                              : order.orderStatus === "cancelled"
+                              ? "#ffebee"
+                              : "#fff8e1",
+                          color:
+                            order.orderStatus === "delivered"
+                              ? "#2e7d32"
+                              : order.orderStatus === "shipped"
+                              ? "#512da8"
+                              : order.orderStatus === "processing"
+                              ? "#1565c0"
+                              : order.orderStatus === "cancelled"
+                              ? "#c62828"
+                              : "#b78103",
                         }}
                       >
                         <option value="confirmed">Confirmed</option>
-                        <option value="processing">Processing</option>
-                        <option value="shipped">Shipped</option>
+                        <option value="processing">Processing (Tailoring &amp; QC)</option>
+                        <option value="shipped">Shipped (Dispatched)</option>
                         <option value="delivered">Delivered</option>
                         <option value="cancelled">Cancelled</option>
                       </select>
+                      <Link
+                        href={`/track-order?orderId=${order.orderNumber}`}
+                        target="_blank"
+                        className="buttonSecondary"
+                        style={{ padding: "6px 12px", fontSize: "0.8rem", display: "inline-flex", alignItems: "center", gap: "5px" }}
+                      >
+                        Live Tracking <ExternalLink size={14} />
+                      </Link>
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1rem" }}>
+                  {/* Card Body */}
+                  <div className={styles.orderCardBody}>
+                    {/* Customer */}
                     <div>
-                      <p style={{ fontWeight: 600, fontSize: "0.85rem", color: "#666", marginBottom: "4px" }}>CUSTOMER DETAILS</p>
-                      <strong style={{ fontSize: "1rem" }}>{order.customerName}</strong>
-                      <p style={{ margin: "2px 0", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "4px" }}>
-                        <Mail size={14} color="#888" /> {order.customerEmail}
+                      <p className={styles.orderSectionTitle}>CUSTOMER DETAILS</p>
+                      <strong style={{ fontSize: "1.05rem" }}>{order.customerName}</strong>
+                      <p style={{ margin: "6px 0 2px", fontSize: "0.86rem", display: "flex", alignItems: "center", gap: "6px" }}>
+                        <Mail size={14} color="var(--muted)" /> {order.customerEmail}
                       </p>
-                      <p style={{ margin: "2px 0", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "4px" }}>
-                        <Phone size={14} color="#888" /> {order.customerPhone}
+                      <p style={{ margin: "2px 0", fontSize: "0.86rem", display: "flex", alignItems: "center", gap: "6px" }}>
+                        <Phone size={14} color="var(--muted)" /> {order.customerPhone}
                       </p>
                     </div>
 
+                    {/* Shipping Address & Payment */}
                     <div>
-                      <p style={{ fontWeight: 600, fontSize: "0.85rem", color: "#666", marginBottom: "4px" }}>SHIPPING ADDRESS</p>
-                      <p style={{ fontSize: "0.85rem", display: "flex", alignItems: "flex-start", gap: "4px", margin: 0 }}>
-                        <MapPin size={16} color="#888" style={{ flexShrink: 0, marginTop: "2px" }} />
+                      <p className={styles.orderSectionTitle}>DELIVERY ADDRESS &amp; PAYMENT</p>
+                      <p style={{ margin: "0 0 6px", fontSize: "0.88rem", lineHeight: 1.5, display: "flex", gap: "6px" }}>
+                        <MapPin size={16} color="var(--primary)" style={{ flexShrink: 0, marginTop: "2px" }} />
                         <span>
                           {order.shippingAddress}, {order.city}, {order.state} - {order.postalCode}
                         </span>
                       </p>
-                      <p style={{ fontSize: "0.8rem", color: "#777", marginTop: "4px" }}>
-                        Payment: <strong>{order.paymentMethod.toUpperCase()}</strong> ({order.paymentStatus})
+                      <p style={{ margin: "4px 0", fontSize: "0.82rem", color: "var(--muted)" }}>
+                        Method: <strong>{order.paymentMethod.toUpperCase()}</strong> &bull; Status: <strong>{order.paymentStatus}</strong>
                       </p>
+                      {order.notes && (
+                        <p style={{ margin: "4px 0", fontSize: "0.8rem", color: "#666", background: "#f5f5f5", padding: "4px 8px", borderRadius: "4px" }}>
+                          Instructions: {order.notes}
+                        </p>
+                      )}
                     </div>
 
+                    {/* Ordered Items Preview */}
                     <div>
-                      <p style={{ fontWeight: 600, fontSize: "0.85rem", color: "#666", marginBottom: "4px" }}>ORDERED ITEMS</p>
-                      {order.items && order.items.map((item, idx) => (
-                        <div key={idx} style={{ fontSize: "0.85rem", marginBottom: "4px", display: "flex", justifyContent: "space-between" }}>
-                          <span>
-                            {item.productName} (Size: <strong>{item.size}</strong>) &times; {item.quantity}
-                          </span>
-                          <strong>{formatPrice(item.price * item.quantity)}</strong>
-                        </div>
-                      ))}
+                      <p className={styles.orderSectionTitle}>
+                        ORDERED ITEMS ({order.items?.length || 0})
+                      </p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        {order.items?.map((item, idx) => (
+                          <div
+                            key={idx}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              fontSize: "0.86rem",
+                              background: "var(--surface)",
+                              padding: "8px 10px",
+                              borderRadius: "6px",
+                            }}
+                          >
+                            <span style={{ fontWeight: 600 }}>
+                              {item.productName} (Size: <strong>{item.size}</strong>) &times; {item.quantity}
+                            </span>
+                            <strong style={{ color: "var(--primary)" }}>
+                              {formatPrice(item.price * item.quantity)}
+                            </strong>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
           )}
         </section>
       )}
 
-      {/* TAB 3: API Keys & Scopes */}
+      {/* TAB 3: API KEYS & DATABASE ARCHITECTURE */}
       {activeTab === "keys" && (
-        <section style={{ background: "white", padding: "24px", borderRadius: "var(--radius)", border: "1px solid var(--line)" }}>
-          <h2>Project API Keys & Scopes Architecture</h2>
-          <p style={{ color: "#666", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
-            The Poonam Attire API uses scoped API keys recorded in <code>project_api_keys</code> and <code>project_api_key_scopes</code>.
+        <section style={{ background: "white", padding: "32px", borderRadius: "var(--radius)", border: "1px solid var(--line)" }}>
+          <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", color: "var(--primary)", fontSize: "1.6rem", margin: "0 0 8px" }}>
+            Project API Keys &amp; Permissions Architecture
+          </h2>
+          <p style={{ color: "var(--muted)", fontSize: "0.92rem", marginBottom: "28px", lineHeight: 1.6 }}>
+            The Poonam Attire API uses dedicated scoped keys in PostgreSQL tables <code>project_api_keys</code> and <code>project_api_key_scopes</code> to secure mobile apps, Next.js storefront, and administration dashboards.
           </p>
 
-          <div style={{ display: "grid", gap: "1rem" }}>
-            <div style={{ border: "1px solid var(--line)", padding: "16px", borderRadius: "8px" }}>
+          <div style={{ display: "grid", gap: "20px" }}>
+            <div style={{ border: "1px solid var(--line)", padding: "20px", borderRadius: "var(--radius)", background: "#fcf8fa" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                <strong>Next.js Web Client Key</strong>
-                <span style={{ background: "#e8f5e9", color: "#2e7d32", padding: "2px 8px", borderRadius: "10px", fontSize: "0.75rem", fontWeight: 700 }}>ACTIVE</span>
+                <strong style={{ fontSize: "1.05rem" }}>Next.js Web Client Live Key</strong>
+                <span style={{ background: "#e8f5e9", color: "#2e7d32", padding: "3px 10px", borderRadius: "12px", fontSize: "0.75rem", fontWeight: 700 }}>ACTIVE &bull; PRODUCTION</span>
               </div>
-              <p style={{ fontFamily: "monospace", fontSize: "0.85rem", color: "#555" }}>PA_live_key_web_client_2026_poonam_hash</p>
-              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginTop: "8px" }}>
-                <span style={{ background: "#f0f0f0", fontSize: "0.75rem", padding: "2px 6px", borderRadius: "4px" }}>catalog:read</span>
-                <span style={{ background: "#f0f0f0", fontSize: "0.75rem", padding: "2px 6px", borderRadius: "4px" }}>cart:write</span>
-                <span style={{ background: "#f0f0f0", fontSize: "0.75rem", padding: "2px 6px", borderRadius: "4px" }}>orders:create</span>
-                <span style={{ background: "#f0f0f0", fontSize: "0.75rem", padding: "2px 6px", borderRadius: "4px" }}>orders:read</span>
+              <p style={{ fontFamily: "monospace", fontSize: "0.9rem", color: "#444", background: "white", padding: "8px 12px", borderRadius: "6px", border: "1px solid var(--line)" }}>
+                PA_live_key_web_client_2026_poonam_hash
+              </p>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "12px" }}>
+                <span style={{ background: "white", border: "1px solid var(--line)", fontSize: "0.76rem", padding: "3px 8px", borderRadius: "4px" }}>catalog:read</span>
+                <span style={{ background: "white", border: "1px solid var(--line)", fontSize: "0.76rem", padding: "3px 8px", borderRadius: "4px" }}>cart:write</span>
+                <span style={{ background: "white", border: "1px solid var(--line)", fontSize: "0.76rem", padding: "3px 8px", borderRadius: "4px" }}>orders:create</span>
+                <span style={{ background: "white", border: "1px solid var(--line)", fontSize: "0.76rem", padding: "3px 8px", borderRadius: "4px" }}>orders:read</span>
               </div>
             </div>
 
-            <div style={{ border: "1px solid var(--line)", padding: "16px", borderRadius: "8px" }}>
+            <div style={{ border: "1px solid var(--line)", padding: "20px", borderRadius: "var(--radius)", background: "#fcf8fa" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                <strong>Flutter Mobile App Key</strong>
-                <span style={{ background: "#e8f5e9", color: "#2e7d32", padding: "2px 8px", borderRadius: "10px", fontSize: "0.75rem", fontWeight: 700 }}>ACTIVE</span>
+                <strong style={{ fontSize: "1.05rem" }}>Flutter Mobile App Live Key</strong>
+                <span style={{ background: "#e8f5e9", color: "#2e7d32", padding: "3px 10px", borderRadius: "12px", fontSize: "0.75rem", fontWeight: 700 }}>ACTIVE &bull; PRODUCTION</span>
               </div>
-              <p style={{ fontFamily: "monospace", fontSize: "0.85rem", color: "#555" }}>PA_live_key_flutter_mobile_2026_poonam_hash</p>
-              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginTop: "8px" }}>
-                <span style={{ background: "#f0f0f0", fontSize: "0.75rem", padding: "2px 6px", borderRadius: "4px" }}>catalog:read</span>
-                <span style={{ background: "#f0f0f0", fontSize: "0.75rem", padding: "2px 6px", borderRadius: "4px" }}>cart:write</span>
-                <span style={{ background: "#f0f0f0", fontSize: "0.75rem", padding: "2px 6px", borderRadius: "4px" }}>orders:create</span>
-                <span style={{ background: "#f0f0f0", fontSize: "0.75rem", padding: "2px 6px", borderRadius: "4px" }}>orders:read</span>
+              <p style={{ fontFamily: "monospace", fontSize: "0.9rem", color: "#444", background: "white", padding: "8px 12px", borderRadius: "6px", border: "1px solid var(--line)" }}>
+                PA_live_key_flutter_mobile_2026_poonam_hash
+              </p>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "12px" }}>
+                <span style={{ background: "white", border: "1px solid var(--line)", fontSize: "0.76rem", padding: "3px 8px", borderRadius: "4px" }}>catalog:read</span>
+                <span style={{ background: "white", border: "1px solid var(--line)", fontSize: "0.76rem", padding: "3px 8px", borderRadius: "4px" }}>cart:write</span>
+                <span style={{ background: "white", border: "1px solid var(--line)", fontSize: "0.76rem", padding: "3px 8px", borderRadius: "4px" }}>orders:create</span>
+                <span style={{ background: "white", border: "1px solid var(--line)", fontSize: "0.76rem", padding: "3px 8px", borderRadius: "4px" }}>orders:read</span>
               </div>
             </div>
 
-            <div style={{ border: "1px solid var(--line)", padding: "16px", borderRadius: "8px" }}>
+            <div style={{ border: "1px solid var(--line)", padding: "20px", borderRadius: "var(--radius)", background: "#fcf8fa" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                <strong>Administrator Portal Key</strong>
-                <span style={{ background: "#e8f5e9", color: "#2e7d32", padding: "2px 8px", borderRadius: "10px", fontSize: "0.75rem", fontWeight: 700 }}>ACTIVE</span>
+                <strong style={{ fontSize: "1.05rem" }}>Administrator Console Key</strong>
+                <span style={{ background: "#e8f5e9", color: "#2e7d32", padding: "3px 10px", borderRadius: "12px", fontSize: "0.75rem", fontWeight: 700 }}>FULL ACCESS</span>
               </div>
-              <p style={{ fontFamily: "monospace", fontSize: "0.85rem", color: "#555" }}>PA_live_key_admin_portal_2026_poonam_hash</p>
-              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginTop: "8px" }}>
-                <span style={{ background: "#8B1E3F", color: "white", fontSize: "0.75rem", padding: "2px 6px", borderRadius: "4px" }}>admin:all</span>
-                <span style={{ background: "#f0f0f0", fontSize: "0.75rem", padding: "2px 6px", borderRadius: "4px" }}>catalog:write</span>
-                <span style={{ background: "#f0f0f0", fontSize: "0.75rem", padding: "2px 6px", borderRadius: "4px" }}>orders:write</span>
+              <p style={{ fontFamily: "monospace", fontSize: "0.9rem", color: "#444", background: "white", padding: "8px 12px", borderRadius: "6px", border: "1px solid var(--line)" }}>
+                PA_live_key_admin_portal_2026_poonam_hash
+              </p>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "12px" }}>
+                <span style={{ background: "var(--primary)", color: "white", fontSize: "0.76rem", padding: "3px 8px", borderRadius: "4px", fontWeight: 700 }}>admin:all</span>
+                <span style={{ background: "white", border: "1px solid var(--line)", fontSize: "0.76rem", padding: "3px 8px", borderRadius: "4px" }}>catalog:write</span>
+                <span style={{ background: "white", border: "1px solid var(--line)", fontSize: "0.76rem", padding: "3px 8px", borderRadius: "4px" }}>orders:write</span>
               </div>
             </div>
           </div>
         </section>
+      )}
+
+      {/* MODAL 1: ADD NEW DRESS */}
+      {showAddModal && (
+        <div className={styles.modalBackdrop}>
+          <div className={styles.modalBox}>
+            <div className={styles.modalHeader}>
+              <h2>Add New Handcrafted Dress</h2>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                style={{ background: "none", border: 0, cursor: "pointer", color: "var(--muted)" }}
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddProduct} className={styles.formGrid}>
+              <div className={styles.formField}>
+                <label>Dress Title *</label>
+                <input
+                  placeholder="e.g. Riyasat Banarasi Silk Lehenga"
+                  value={addForm.name}
+                  onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+                <div className={styles.formField}>
+                  <label>Category *</label>
+                  <select
+                    value={addForm.category}
+                    onChange={(e) => setAddForm({ ...addForm, category: e.target.value })}
+                  >
+                    <option value="Festive">Festive</option>
+                    <option value="Occasion">Occasion</option>
+                    <option value="Wedding">Wedding</option>
+                    <option value="Casual">Casual</option>
+                    <option value="Workwear">Workwear</option>
+                  </select>
+                </div>
+
+                <div className={styles.formField}>
+                  <label>Fabric *</label>
+                  <select
+                    value={addForm.fabric}
+                    onChange={(e) => setAddForm({ ...addForm, fabric: e.target.value })}
+                  >
+                    <option value="Silk Blend">Silk Blend</option>
+                    <option value="Chanderi">Chanderi</option>
+                    <option value="Pure Cotton">Pure Cotton</option>
+                    <option value="Georgette">Georgette</option>
+                    <option value="Banarasi Silk">Banarasi Silk</option>
+                    <option value="Linen">Linen</option>
+                    <option value="Rayon">Rayon</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "14px" }}>
+                <div className={styles.formField}>
+                  <label>Color</label>
+                  <input
+                    placeholder="e.g. Maroon"
+                    value={addForm.color}
+                    onChange={(e) => setAddForm({ ...addForm, color: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <label>Price (₹) *</label>
+                  <input
+                    type="number"
+                    placeholder="4299"
+                    value={addForm.price}
+                    onChange={(e) => setAddForm({ ...addForm, price: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <label>MRP (₹)</label>
+                  <input
+                    type="number"
+                    placeholder="5899"
+                    value={addForm.mrp}
+                    onChange={(e) => setAddForm({ ...addForm, mrp: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+                <div className={styles.formField}>
+                  <label>Stock Count</label>
+                  <input
+                    type="number"
+                    placeholder="25"
+                    value={addForm.stock}
+                    onChange={(e) => setAddForm({ ...addForm, stock: e.target.value })}
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <label>Available Sizes</label>
+                  <input
+                    placeholder="XS, S, M, L, XL"
+                    value={addForm.sizes}
+                    onChange={(e) => setAddForm({ ...addForm, sizes: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formField}>
+                <label>Photo URL (High-Resolution Image)</label>
+                <input
+                  placeholder="https://images.unsplash.com/photo-..."
+                  value={addForm.image}
+                  onChange={(e) => setAddForm({ ...addForm, image: e.target.value })}
+                />
+              </div>
+
+              <div className={styles.formField}>
+                <label>Description &amp; Artisanal Story</label>
+                <textarea
+                  placeholder="Describe the fabric weaves, neckline embroidery, and silhouette..."
+                  value={addForm.description}
+                  onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
+                />
+              </div>
+
+              <div className={styles.modalActions}>
+                <button type="button" className="buttonSecondary" onClick={() => setShowAddModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="button" disabled={submittingAdd}>
+                  {submittingAdd ? "Saving to Database..." : "Save & Publish"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: EDIT EXISTING DRESS */}
+      {editingProduct && (
+        <div className={styles.modalBackdrop}>
+          <div className={styles.modalBox}>
+            <div className={styles.modalHeader}>
+              <h2>Edit Dress: {editingProduct.name}</h2>
+              <button
+                type="button"
+                onClick={() => setEditingProduct(null)}
+                style={{ background: "none", border: 0, cursor: "pointer", color: "var(--muted)" }}
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditProduct} className={styles.formGrid}>
+              <div className={styles.formField}>
+                <label>Dress Title</label>
+                <input
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+                <div className={styles.formField}>
+                  <label>Category</label>
+                  <select
+                    value={editForm.category}
+                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                  >
+                    <option value="Festive">Festive</option>
+                    <option value="Occasion">Occasion</option>
+                    <option value="Wedding">Wedding</option>
+                    <option value="Casual">Casual</option>
+                    <option value="Workwear">Workwear</option>
+                  </select>
+                </div>
+
+                <div className={styles.formField}>
+                  <label>Fabric</label>
+                  <input
+                    value={editForm.fabric}
+                    onChange={(e) => setEditForm({ ...editForm, fabric: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "14px" }}>
+                <div className={styles.formField}>
+                  <label>Color</label>
+                  <input
+                    value={editForm.color}
+                    onChange={(e) => setEditForm({ ...editForm, color: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <label>Price (₹)</label>
+                  <input
+                    type="number"
+                    value={editForm.price}
+                    onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <label>MRP (₹)</label>
+                  <input
+                    type="number"
+                    value={editForm.mrp}
+                    onChange={(e) => setEditForm({ ...editForm, mrp: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+                <div className={styles.formField}>
+                  <label>Stock Count</label>
+                  <input
+                    type="number"
+                    value={editForm.stock}
+                    onChange={(e) => setEditForm({ ...editForm, stock: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <label>Available Sizes</label>
+                  <input
+                    value={editForm.sizes}
+                    onChange={(e) => setEditForm({ ...editForm, sizes: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formField}>
+                <label>Photo URL</label>
+                <input
+                  value={editForm.image}
+                  onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className={styles.formField}>
+                <label>Description &amp; Care Details</label>
+                <textarea
+                  value={editForm.description}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <input
+                  type="checkbox"
+                  id="isActiveCheck"
+                  checked={editForm.is_active}
+                  onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })}
+                  style={{ width: "18px", height: "18px" }}
+                />
+                <label htmlFor="isActiveCheck" style={{ fontWeight: 600, fontSize: "0.9rem", cursor: "pointer" }}>
+                  Active &amp; Visible in Boutique Storefront
+                </label>
+              </div>
+
+              <div className={styles.modalActions}>
+                <button type="button" className="buttonSecondary" onClick={() => setEditingProduct(null)}>
+                  Cancel
+                </button>
+                <button type="submit" className="button" disabled={submittingEdit}>
+                  {submittingEdit ? "Updating..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </main>
   );

@@ -18,15 +18,18 @@ import {
   ShieldCheck,
   ArrowRight,
   ShoppingBag,
+  ExternalLink,
+  MessageCircle,
 } from "lucide-react";
 import { formatPrice } from "@/data/products";
 import { useAuthStore } from "@/store/useAuthStore";
+import { WhatsAppIcon } from "@/components/SocialIcons";
 import styles from "./track-order.module.css";
 
 const statusSteps = [
   {
     key: "confirmed",
-    label: "Confirmed",
+    label: "Order Confirmed",
     desc: "Order verified & tailoring scheduled",
     icon: CheckCircle2,
     time: "Day 1",
@@ -91,30 +94,27 @@ export default function TrackOrderPage() {
           const data = await res.json();
           if (data.success && Array.isArray(data.orders) && data.orders.length > 0) {
             setRecentOrders(data.orders);
-            // Automatically track latest order so user DOES NOT NEED TO TYPE in a box!
             const latest = data.orders[0];
-            setQueryId(latest.orderNumber || latest.order_number);
-            track(latest.orderNumber || latest.order_number);
+            const num = latest.orderNumber || latest.order_number;
+            setQueryId(num);
+            track(num);
             return;
           }
         }
       } catch (e) {
-        console.error("Failed to load user orders automatically:", e);
+        console.error("Failed to load user recent orders:", e);
       }
 
-      // If no orders found, show search box by default
-      setShowSearchBox(true);
+      // Fallback to active demo order
+      track("PA-2026-4292");
     };
 
     fetchLatestOrParam();
-  }, [customer]);
+  }, [customer?.token]);
 
-  const track = async (idToTrack: string) => {
-    const cleanId = idToTrack.trim();
-    if (!cleanId) {
-      setError("Please enter a valid order number.");
-      return;
-    }
+  const track = async (id: string) => {
+    const cleanId = id.trim();
+    if (!cleanId) return;
 
     setLoading(true);
     setError(null);
@@ -152,386 +152,281 @@ export default function TrackOrderPage() {
 
   const paymentMethodStr = (order?.paymentMethod || order?.payment_method || "COD").toUpperCase();
 
+  const getStatusBadgeClass = (status: string) => {
+    const norm = (status || "").toLowerCase();
+    if (norm === "delivered") return styles.badgeDelivered;
+    if (norm === "shipped") return styles.badgeShipped;
+    if (norm === "processing") return styles.badgeProcessing;
+    if (norm === "cancelled") return styles.badgeCancelled;
+    return styles.badgeConfirmed;
+  };
+
   return (
-    <main className={`${styles.track} section`}>
-      <section style={{ marginBottom: "1.5rem" }}>
-        <p className="eyebrow">Real-Time Shipment Tracking</p>
-        <h1 className="title">Know exactly where your outfit is.</h1>
-        <p className="copy">
-          Live fulfillment status, tailoring progress, and courier checkpoints for your Poonam Attire outfits.
-        </p>
-
-        {/* Quick order switcher buttons if user has multiple orders */}
-        {recentOrders.length > 0 && (
-          <div style={{ marginTop: "1rem" }}>
-            <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#666", marginRight: "10px" }}>
-              Your Orders:
-            </span>
-            <div style={{ display: "inline-flex", gap: "8px", flexWrap: "wrap", marginTop: "6px" }}>
-              {recentOrders.map((ro) => {
-                const num = ro.orderNumber || ro.order_number;
-                const isSelected = order?.orderNumber === num;
-                return (
-                  <button
-                    key={num}
-                    type="button"
-                    onClick={() => {
-                      setQueryId(num);
-                      track(num);
-                    }}
-                    style={{
-                      background: isSelected ? "#8B1E3F" : "#fff",
-                      color: isSelected ? "#fff" : "#8B1E3F",
-                      border: "1px solid #8B1E3F",
-                      borderRadius: "20px",
-                      padding: "4px 12px",
-                      fontSize: "0.85rem",
-                      fontWeight: 600,
-                      cursor: "pointer",
-                    }}
-                  >
-                    #{num} ({ro.orderStatus})
-                  </button>
-                );
-              })}
-            </div>
+    <main className={styles.trackPage}>
+      {/* Top Header */}
+      <header className={styles.header}>
+        <div className={styles.headerTop}>
+          <div>
+            <p className="eyebrow">Real-Time Atelier Fulfillment</p>
+            <h1 className={styles.headerTitle}>Order Tracking &amp; Dispatch Timeline</h1>
+            <p className={styles.headerSubtitle}>
+              Live fulfillment status, tailoring progress, and courier checkpoints for your handcrafted Poonam Attire outfits.
+            </p>
           </div>
-        )}
-      </section>
 
-      <div style={{ display: "grid", gap: "2rem", maxWidth: "860px", width: "100%" }}>
-        {/* Optional Search / Switcher Box */}
-        {showSearchBox ? (
-          <form className={styles.card} onSubmit={handleSubmit}>
-            <PackageSearch size={34} />
-            <label>
-              Order ID
-              <span>
-                <Search size={18} />
-                <input
-                  placeholder="e.g. PA-2026-4572"
-                  value={queryId}
-                  onChange={(e) => setQueryId(e.target.value)}
-                  required
-                />
-              </span>
-            </label>
-            <button className="button" type="submit" disabled={loading}>
-              {loading ? "Locating Order..." : "Track Order"}
-            </button>
-            <Link className="buttonSecondary" href="/orders">
-              View all my orders
-            </Link>
-          </form>
-        ) : (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div className={styles.headerActions}>
             <button
               type="button"
-              onClick={() => setShowSearchBox(true)}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#8B1E3F",
-                fontWeight: 600,
-                cursor: "pointer",
-                fontSize: "0.9rem",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "4px",
-              }}
+              className="buttonSecondary"
+              onClick={() => setShowSearchBox(!showSearchBox)}
             >
-              <Search size={15} /> Track a different order number
+              <Search size={16} />
+              {showSearchBox ? "Hide Search" : "Track Another Order"}
             </button>
-            <Link className="buttonSecondary" href="/orders">
-              Back to all orders
+            <Link href="/orders" className="buttonSecondary">
+              Back to All Orders
             </Link>
           </div>
-        )}
+        </div>
 
-        {error && (
-          <div
-            style={{
-              padding: "1rem",
-              background: "#fff0f2",
-              color: "#d32f2f",
-              borderRadius: "8px",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
-            <AlertCircle size={18} />
-            <span>{error}</span>
+        {/* Quick order switcher pills */}
+        {recentOrders.length > 0 && (
+          <div className={styles.recentOrdersBar}>
+            <span className={styles.recentOrdersLabel}>Your Recent Orders:</span>
+            {recentOrders.map((ro) => {
+              const num = ro.orderNumber || ro.order_number;
+              const isSelected = order?.orderNumber === num;
+              return (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => {
+                    setQueryId(num);
+                    track(num);
+                  }}
+                  className={`${styles.orderPill} ${isSelected ? styles.orderPillActive : ""}`}
+                >
+                  #{num} ({ro.orderStatus})
+                </button>
+              );
+            })}
           </div>
         )}
+      </header>
 
-        {/* Live Order Detail & Tracking View */}
-        {order && (
-          <div
-            style={{
-              background: "white",
-              padding: "28px",
-              borderRadius: "16px",
-              border: "1px solid var(--line)",
-              boxShadow: "0 14px 40px rgba(139, 30, 63, 0.08)",
-            }}
-          >
-            {/* Order Top Bar */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                borderBottom: "1px solid #eee",
-                paddingBottom: "16px",
-                marginBottom: "20px",
-                flexWrap: "wrap",
-                gap: "1rem",
-              }}
-            >
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <h2
-                    style={{
-                      margin: 0,
-                      fontFamily: "var(--font-playfair), Georgia, serif",
-                      color: "#8B1E3F",
-                      fontSize: "1.6rem",
-                    }}
-                  >
-                    #{order.orderNumber}
-                  </h2>
-                  <span
-                    style={{
-                      background:
-                        order.orderStatus === "delivered"
-                          ? "#e8f5e9"
-                          : order.orderStatus === "shipped"
-                          ? "#e3f2fd"
-                          : "#fff3e0",
-                      color:
-                        order.orderStatus === "delivered"
-                          ? "#2e7d32"
-                          : order.orderStatus === "shipped"
-                          ? "#1565c0"
-                          : "#e65100",
-                      fontWeight: 700,
-                      fontSize: "0.8rem",
-                      padding: "4px 12px",
-                      borderRadius: "16px",
-                      textTransform: "uppercase",
-                    }}
-                  >
+      {/* Search Box (Collapsible) */}
+      {showSearchBox && (
+        <form className={styles.searchCard} onSubmit={handleSubmit}>
+          <label>
+            Enter Order Number (e.g. PA-2026-4292)
+            <span>
+              <Search size={18} />
+              <input
+                placeholder="Order Number"
+                value={queryId}
+                onChange={(e) => setQueryId(e.target.value)}
+                required
+              />
+            </span>
+          </label>
+          <button className="button" type="submit" disabled={loading}>
+            {loading ? "Locating Order..." : "Search Order"}
+          </button>
+        </form>
+      )}
+
+      {/* Loading Indicator */}
+      {loading && (
+        <div style={{ textAlign: "center", padding: "48px 0" }}>
+          <p style={{ color: "var(--primary)", fontWeight: 600 }}>Locating order and fetching real-time dispatch status...</p>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && !loading && (
+        <div style={{ background: "#ffebee", border: "1px solid #ffcdd2", color: "#c62828", padding: "16px 20px", borderRadius: "var(--radius)", marginBottom: "24px", display: "flex", gap: "10px", alignItems: "center" }}>
+          <AlertCircle size={20} />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Main Order View */}
+      {order && !loading && (
+        <>
+          {/* Hero Order Card */}
+          <section className={styles.orderHeroCard}>
+            <div className={styles.orderHeroHeader}>
+              <div className={styles.orderMetaGroup}>
+                <div className={styles.orderNumWrap}>
+                  <span className={styles.orderNum}>#{order.orderNumber}</span>
+                  <span className={`${styles.statusBadge} ${getStatusBadgeClass(order.orderStatus)}`}>
                     {order.orderStatus}
                   </span>
                 </div>
-                <p style={{ margin: "4px 0 0", color: "#666", fontSize: "0.9rem" }}>
-                  Recipient: <strong>{order.customerName}</strong> &bull; Contact: {order.customerPhone}
-                </p>
+                <div className={styles.orderSubDetails}>
+                  <span>
+                    <Calendar size={15} /> Placed on {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                  </span>
+                  <span>
+                    Recipient: <strong>{order.customerName}</strong>
+                  </span>
+                  <span>
+                    Contact: <strong>{order.customerPhone}</strong>
+                  </span>
+                </div>
               </div>
 
-              <div style={{ textAlign: "right" }}>
-                <strong style={{ fontSize: "1.5rem", color: "#111" }}>
-                  {formatPrice(order.totalAmount)}
-                </strong>
-                <p style={{ margin: "2px 0 0", fontSize: "0.85rem", color: "#777" }}>
-                  Payment: <strong>{paymentMethodStr}</strong> ({order.paymentStatus || "pending"})
-                </p>
+              <div className={styles.orderFinancials}>
+                <span className={styles.totalAmount}>{formatPrice(order.totalAmount)}</span>
+                <span className={styles.paymentMode}>
+                  Payment: <strong>{paymentMethodStr}</strong> ({order.paymentStatus || "Pending"})
+                </span>
               </div>
             </div>
 
-            {/* Stepper Timeline with Icons */}
-            <div style={{ background: "#fbf8f5", padding: "20px", borderRadius: "14px", margin: "1.5rem 0" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
+            {/* Stepper Timeline */}
+            <div className={styles.stepperWrap}>
+              <div className={styles.stepperGrid}>
                 {statusSteps.map((step, idx) => {
                   const currentIdx = getStepIndex(order.orderStatus);
-                  const isDone = idx <= currentIdx;
-                  const isCurrent = idx === currentIdx;
+                  const isDone = idx < currentIdx;
+                  const isActive = idx === currentIdx;
                   const Icon = step.icon;
 
                   return (
                     <div
                       key={step.key}
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        textAlign: "center",
-                      }}
+                      className={`${styles.stepItem} ${isActive ? styles.stepItemActive : ""} ${isDone ? styles.stepItemDone : ""}`}
                     >
-                      <div
-                        style={{
-                          width: "42px",
-                          height: "42px",
-                          borderRadius: "50%",
-                          background: isDone ? "#8B1E3F" : "#e0e0e0",
-                          color: isDone ? "white" : "#777",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          boxShadow: isCurrent ? "0 0 0 5px rgba(139, 30, 63, 0.25)" : "none",
-                          transition: "all 0.3s ease",
-                        }}
-                      >
+                      <div className={styles.stepIconWrap}>
                         <Icon size={20} />
                       </div>
-                      <strong
-                        style={{
-                          fontSize: "0.88rem",
-                          marginTop: "8px",
-                          color: isDone ? "#8B1E3F" : "#777",
-                        }}
-                      >
-                        {step.label}
-                      </strong>
-                      <span
-                        style={{
-                          fontSize: "0.74rem",
-                          color: "#888",
-                          marginTop: "3px",
-                          lineHeight: 1.3,
-                        }}
-                      >
-                        {step.desc}
-                      </span>
+                      <span className={styles.stepLabel}>{step.label}</span>
+                      <p className={styles.stepDesc}>{step.desc}</p>
+                      <span className={styles.stepTime}>{step.time}</span>
                     </div>
                   );
                 })}
               </div>
             </div>
+          </section>
 
-            {/* Ordered Dresses Gallery */}
-            <div style={{ marginTop: "1.5rem" }}>
-              <h3 style={{ fontSize: "1.1rem", marginBottom: "12px", color: "#333" }}>
-                Ordered Outfits ({order.items?.length || 0})
-              </h3>
+          {/* Main 2-Column Content Split */}
+          <div className={styles.contentSplit}>
+            {/* Left Column: Outfits List */}
+            <section className={styles.outfitsSection}>
+              <h2 className={styles.sectionHeading}>
+                <span>Ordered Handcrafted Outfits</span>
+                <span style={{ fontSize: "0.95rem", color: "var(--muted)", fontWeight: 500 }}>
+                  ({order.items?.length || 0} {order.items?.length === 1 ? "Piece" : "Pieces"})
+                </span>
+              </h2>
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-                  gap: "14px",
-                }}
-              >
-                {order.items && order.items.length > 0 ? (
-                  order.items.map((item: any, idx: number) => {
-                    const fallbackImage =
-                      "https://images.unsplash.com/photo-1594226801341-41427b4e5c22?auto=format&fit=crop&w=900&q=80";
-                    const itemImg = item.imageUrl || item.image_url || item.image || fallbackImage;
+              <div className={styles.outfitsList}>
+                {order.items?.map((item: any, idx: number) => {
+                  const imgSrc = item.imageUrl || item.image || "https://images.unsplash.com/photo-1594226801341-41427b4e5c22?auto=format&fit=crop&w=600&q=80";
+                  const unitPrice = Number(item.price) || 0;
+                  const quantity = Number(item.quantity) || 1;
+                  const lineTotal = unitPrice * quantity;
 
-                    return (
-                      <div
-                        key={idx}
-                        style={{
-                          display: "flex",
-                          gap: "12px",
-                          background: "#fafafa",
-                          border: "1px solid #eee",
-                          borderRadius: "10px",
-                          padding: "10px",
-                          alignItems: "center",
-                        }}
-                      >
-                        <div
-                          style={{
-                            position: "relative",
-                            width: "70px",
-                            height: "90px",
-                            borderRadius: "8px",
-                            overflow: "hidden",
-                            flexShrink: 0,
-                            background: "#eee",
-                          }}
-                        >
-                          <Image
-                            src={itemImg}
-                            alt={item.productName || item.name || "Attire"}
-                            fill
-                            sizes="70px"
-                            style={{ objectFit: "cover" }}
-                          />
+                  return (
+                    <article key={idx} className={styles.outfitCard}>
+                      <Image
+                        src={imgSrc}
+                        alt={item.productName || "Attire item"}
+                        width={80}
+                        height={100}
+                        className={styles.outfitImage}
+                      />
+                      <div className={styles.outfitInfo}>
+                        <span className={styles.outfitTitle}>{item.productName}</span>
+                        <div className={styles.outfitBadges}>
+                          <span className={styles.sizeBadge}>Size: {item.size || "M"}</span>
+                          <span className={styles.qtyBadge}>Qty: {quantity}</span>
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <strong
-                            style={{
-                              display: "block",
-                              fontSize: "0.92rem",
-                              color: "#222",
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                            }}
-                            title={item.productName || item.name}
-                          >
-                            {item.productName || item.name}
-                          </strong>
-                          <div style={{ display: "flex", gap: "6px", margin: "4px 0" }}>
-                            <span
-                              style={{
-                                fontSize: "0.75rem",
-                                background: "#e8eaf6",
-                                color: "#283593",
-                                padding: "2px 7px",
-                                borderRadius: "4px",
-                                fontWeight: 600,
-                              }}
-                            >
-                              Size: {item.size}
-                            </span>
-                            <span
-                              style={{
-                                fontSize: "0.75rem",
-                                background: "#f0f0f0",
-                                color: "#555",
-                                padding: "2px 7px",
-                                borderRadius: "4px",
-                                fontWeight: 600,
-                              }}
-                            >
-                              Qty: {item.quantity}
-                            </span>
-                          </div>
-                          <div style={{ fontSize: "0.85rem", color: "#8B1E3F", fontWeight: 700 }}>
-                            {formatPrice(item.price * item.quantity)}
-                          </div>
-                        </div>
+                        <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
+                          Hand-tailored finishing with authentic luxury lining
+                        </span>
                       </div>
-                    );
-                  })
-                ) : (
-                  <p style={{ color: "#777", fontSize: "0.9rem" }}>No item details found.</p>
-                )}
-              </div>
-            </div>
 
-            {/* Delivery & Shipping Info */}
-            <div
-              style={{
-                borderTop: "1px solid #eee",
-                paddingTop: "16px",
-                marginTop: "20px",
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "1rem",
-                fontSize: "0.9rem",
-              }}
-            >
-              <div>
-                <p style={{ fontWeight: 700, margin: "0 0 4px", color: "#444" }}>SHIPPING DESTINATION</p>
-                <p style={{ margin: 0, color: "#666" }}>
-                  {order.shippingAddress}, {order.city}, {order.state} - {order.postalCode}
-                </p>
+                      <div className={styles.outfitPricing}>
+                        <strong className={styles.outfitTotal}>{formatPrice(lineTotal)}</strong>
+                        <span className={styles.outfitUnitPrice}>
+                          {quantity > 1 ? `${formatPrice(unitPrice)} × ${quantity}` : "Standard boutique rate"}
+                        </span>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
-              <div>
-                <p style={{ fontWeight: 700, margin: "0 0 4px", color: "#444" }}>SPECIAL INSTRUCTIONS</p>
-                <p style={{ margin: 0, color: "#666" }}>
-                  {order.notes || "Standard boutique express delivery"}
-                </p>
+            </section>
+
+            {/* Right Column: Address, Financials & Concierge */}
+            <aside className={styles.sidebar}>
+              {/* Shipping Destination */}
+              <div className={styles.sideCard}>
+                <h3>
+                  <MapPin size={17} /> Shipping Destination
+                </h3>
+                <div className={styles.addressBlock}>
+                  <strong>{order.customerName}</strong>
+                  <span>{order.shippingAddress}</span>
+                  <span>{order.city}, {order.state} - {order.postalCode}</span>
+                  <span style={{ marginTop: "4px", color: "var(--muted)", fontSize: "0.82rem" }}>
+                    Special Instructions: {order.notes || "Standard boutique express delivery"}
+                  </span>
+                </div>
               </div>
-            </div>
+
+              {/* Price & Billing Summary */}
+              <div className={styles.sideCard}>
+                <h3>Payment Summary</h3>
+                <div className={styles.priceBreakdown}>
+                  <div className={styles.priceRow}>
+                    <span>Items Subtotal</span>
+                    <span>{formatPrice(order.subtotal || order.totalAmount)}</span>
+                  </div>
+                  {order.discount > 0 && (
+                    <div className={styles.priceRow} style={{ color: "#2e7d32" }}>
+                      <span>Boutique Savings</span>
+                      <span>-{formatPrice(order.discount)}</span>
+                    </div>
+                  )}
+                  <div className={styles.priceRow}>
+                    <span>Boutique Express Delivery</span>
+                    <span style={{ color: "#2e7d32", fontWeight: 600 }}>FREE</span>
+                  </div>
+                  <div className={styles.priceRow}>
+                    <span>Packaging &amp; Handling</span>
+                    <span style={{ color: "#2e7d32", fontWeight: 600 }}>COMPLIMENTARY</span>
+                  </div>
+                  <div className={styles.priceTotalRow}>
+                    <span>Total Order Value</span>
+                    <span style={{ color: "var(--primary)" }}>{formatPrice(order.totalAmount)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* VIP Concierge Support Card */}
+              <div className={styles.supportCard}>
+                <h4>Need Fit or Delivery Assistance?</h4>
+                <p>
+                  Our atelier stylists are available to provide alteration guidance, expedited delivery arrangements, or address updates.
+                </p>
+                <a
+                  href={`https://wa.me/919810012345?text=Hello%20Poonam%20Attire,%20I%20need%20assistance%20with%20my%20order%20%23${order.orderNumber}.`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.whatsappBtn}
+                >
+                  <WhatsAppIcon size={18} color="#fff" />
+                  Chat on WhatsApp
+                </a>
+              </div>
+            </aside>
           </div>
-        )}
-      </div>
+        </>
+      )}
     </main>
   );
 }

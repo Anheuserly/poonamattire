@@ -150,6 +150,7 @@ export function Footer() {
           <Link href="/track-order">Live Order Tracking</Link>
           <Link href="/profile">Customer Account</Link>
           <Link href="/contact">Boutique Appointments</Link>
+          <Link href="/admin">Atelier Admin Portal</Link>
         </div>
 
         {/* Contact & Concierge */}

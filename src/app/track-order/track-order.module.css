@@ -1,59 +1,569 @@
-.track {
+.trackPage {
+  background: #fbf8f9;
+  min-height: calc(100vh - 160px);
+  padding: 48px max(24px, calc((100vw - 1240px) / 2)) 72px;
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.headerTop {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.headerTitle {
+  color: var(--primary);
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 2.2rem;
+  font-weight: 500;
+  margin: 6px 0 10px;
+}
+
+.headerSubtitle {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 680px;
+}
+
+.headerActions {
   align-items: center;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(245, 230, 232, 0.9)),
-    url("https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1600&q=80");
-  background-position: center;
-  background-size: cover;
-  display: grid;
-  gap: 48px;
-  grid-template-columns: 1fr 420px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.track section > p:last-of-type {
-  margin-top: 18px;
-}
-
-.card {
+.searchCard {
   background: white;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  box-shadow: 0 10px 30px rgba(139, 30, 63, 0.06);
   display: grid;
-  gap: 18px;
-  padding: 28px;
+  gap: 16px;
+  margin-bottom: 28px;
+  max-width: 580px;
+  padding: 24px;
 }
 
-.card > svg {
-  color: var(--primary);
-}
-
-.card label {
+.searchCard label {
   color: var(--muted);
   display: grid;
+  font-size: 0.88rem;
   font-weight: 600;
   gap: 8px;
 }
 
-.card label span {
+.searchCard label span {
   align-items: center;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   display: flex;
   gap: 10px;
   min-height: 48px;
-  padding: 0 12px;
+  padding: 0 14px;
 }
 
-.card input {
+.searchCard input {
   border: 0;
   flex: 1;
+  font-size: 0.95rem;
   min-width: 0;
   outline: 0;
 }
 
-@media (max-width: 820px) {
-  .track {
+.recentOrdersBar {
+  align-items: center;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 18px;
+}
+
+.recentOrdersLabel {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.orderPill {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  transition: all 180ms ease;
+}
+
+.orderPill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.orderPillActive {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* Hero Order Status Card */
+.orderHeroCard {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 14px 40px rgba(139, 30, 63, 0.06);
+  margin-bottom: 32px;
+  overflow: hidden;
+}
+
+.orderHeroHeader {
+  align-items: center;
+  background: #fcf6f8;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+  padding: 24px 28px;
+}
+
+.orderMetaGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.orderNumWrap {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.orderNum {
+  color: var(--primary);
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: 600;
+}
+
+.statusBadge {
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 5px 14px;
+  text-transform: uppercase;
+}
+
+.badgeConfirmed {
+  background: #fff8e1;
+  color: #b78103;
+}
+
+.badgeProcessing {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badgeShipped {
+  background: #ede7f6;
+  color: #512da8;
+}
+
+.badgeDelivered {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badgeCancelled {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.orderSubDetails {
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.86rem;
+  gap: 16px;
+}
+
+.orderSubDetails span {
+  align-items: center;
+  display: inline-flex;
+  gap: 5px;
+}
+
+.orderFinancials {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.totalAmount {
+  color: var(--ink);
+  font-size: 1.85rem;
+  font-weight: 700;
+}
+
+.paymentMode {
+  align-items: center;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: 0.85rem;
+  gap: 6px;
+}
+
+/* Stepper */
+.stepperWrap {
+  padding: 32px 28px 24px;
+}
+
+.stepperGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  position: relative;
+}
+
+.stepItem {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  text-align: center;
+}
+
+.stepIconWrap {
+  align-items: center;
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 50%;
+  color: #888;
+  display: flex;
+  height: 48px;
+  justify-content: center;
+  margin-bottom: 12px;
+  position: relative;
+  transition: all 200ms ease;
+  width: 48px;
+  z-index: 2;
+}
+
+.stepItemActive .stepIconWrap {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 6px 18px rgba(139, 30, 63, 0.25);
+  color: white;
+}
+
+.stepItemDone .stepIconWrap {
+  background: #2e7d32;
+  border-color: #2e7d32;
+  color: white;
+}
+
+.stepLabel {
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.stepDesc {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  max-width: 190px;
+}
+
+.stepTime {
+  color: var(--accent);
+  font-size: 0.74rem;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+/* Main Split */
+.contentSplit {
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 1fr 380px;
+}
+
+.outfitsSection {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(139, 30, 63, 0.04);
+  padding: 26px;
+}
+
+.sectionHeading {
+  align-items: baseline;
+  border-bottom: 1px solid var(--line);
+  color: var(--primary);
+  display: flex;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  justify-content: space-between;
+  margin: 0 0 20px;
+  padding-bottom: 14px;
+}
+
+.outfitsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.outfitCard {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  gap: 18px;
+  padding: 16px;
+  transition: all 180ms ease;
+}
+
+.outfitCard:hover {
+  background: #ffffff;
+  border-color: rgba(139, 30, 63, 0.3);
+  box-shadow: 0 8px 24px rgba(139, 30, 63, 0.06);
+}
+
+.outfitImage {
+  border-radius: 8px;
+  flex-shrink: 0;
+  height: 100px;
+  object-fit: cover;
+  width: 80px;
+}
+
+.outfitInfo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.outfitTitle {
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.outfitTitle:hover {
+  color: var(--primary);
+}
+
+.outfitBadges {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+.sizeBadge {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 3px 8px;
+}
+
+.qtyBadge {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 8px;
+}
+
+.outfitPricing {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: right;
+}
+
+.outfitTotal {
+  color: var(--primary);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.outfitUnitPrice {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+/* Sidebar */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sideCard {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(139, 30, 63, 0.04);
+  padding: 22px;
+}
+
+.sideCard h3 {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  color: var(--primary);
+  display: flex;
+  font-size: 0.88rem;
+  font-weight: 700;
+  gap: 8px;
+  letter-spacing: 0.06em;
+  margin: 0 0 14px;
+  padding-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.addressBlock {
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  font-size: 0.88rem;
+  gap: 8px;
+  line-height: 1.5;
+}
+
+.addressBlock strong {
+  font-size: 0.95rem;
+}
+
+.priceBreakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.priceRow {
+  color: var(--muted);
+  display: flex;
+  font-size: 0.88rem;
+  justify-content: space-between;
+}
+
+.priceTotalRow {
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+  display: flex;
+  font-size: 1.1rem;
+  font-weight: 700;
+  justify-content: space-between;
+  margin-top: 6px;
+  padding-top: 10px;
+}
+
+.supportCard {
+  background: #fbf5f7;
+  border: 1px solid rgba(139, 30, 63, 0.18);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+
+.supportCard h4 {
+  color: var(--primary);
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.supportCard p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  margin: 0 0 16px;
+}
+
+.whatsappBtn {
+  align-items: center;
+  background: #25d366;
+  border-radius: var(--radius);
+  color: white;
+  display: inline-flex;
+  font-size: 0.88rem;
+  font-weight: 600;
+  gap: 8px;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  text-decoration: none;
+  transition: background 180ms ease;
+  width: 100%;
+}
+
+.whatsappBtn:hover {
+  background: #1eb956;
+}
+
+@media (max-width: 960px) {
+  .contentSplit {
     grid-template-columns: 1fr;
+  }
+
+  .stepperGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .orderFinancials {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .trackPage {
+    padding: 28px 16px 48px;
+  }
+
+  .stepperGrid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .outfitCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .outfitPricing {
+    align-items: flex-start;
+    margin-top: 8px;
   }
 }
