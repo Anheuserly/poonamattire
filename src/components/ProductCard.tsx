@@ -2,9 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShoppingBag, Star } from "lucide-react";
+import { Check, Heart, ShoppingBag, Star } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
 import type { Product } from "@/data/products";
 import { formatPrice } from "@/data/products";
 import { useCommerceStore } from "@/store/useCommerceStore";
@@ -16,17 +15,19 @@ type ProductCardProps = {
 };
 
 export function ProductCard({ product }: ProductCardProps) {
-  const [added, setAdded] = useState(false);
+  const cart = useCommerceStore((state) => state.cart);
   const addToCart = useCommerceStore((state) => state.addToCart);
   const toggleWishlist = useCommerceStore((state) => state.toggleWishlist);
   const wished = useCommerceStore((state) => state.wishlist.includes(product.id));
   const showCartToast = useUiStore((state) => state.showCartToast);
 
-  function handleAddToCart() {
+  const cartItem = cart.find((item) => item.product.id === product.id);
+  const totalInBag = cartItem ? cartItem.quantity : 0;
+
+  function handleAddToCart(e?: React.MouseEvent) {
+    if (e) e.stopPropagation();
     addToCart(product);
     showCartToast({ product });
-    setAdded(true);
-    window.setTimeout(() => setAdded(false), 1200);
   }
 
   return (
@@ -67,9 +68,26 @@ export function ProductCard({ product }: ProductCardProps) {
         <strong>{formatPrice(product.price)}</strong>
         <small>{formatPrice(product.mrp)}</small>
       </div>
-      <button className={added ? styles.cartAdded : styles.cart} onClick={handleAddToCart}>
-        <ShoppingBag size={18} /> {added ? "Added" : "Add to cart"}
-      </button>
+      {totalInBag > 0 ? (
+        <div className={styles.cartActionGroup}>
+          <Link href="/cart" className={styles.cartInBag}>
+            <Check size={16} /> In Bag ({totalInBag}) &bull; View Bag &rarr;
+          </Link>
+          <button
+            type="button"
+            className={styles.cartAddMore}
+            onClick={handleAddToCart}
+            title="Add one more to bag"
+            aria-label="Add one more"
+          >
+            +1
+          </button>
+        </div>
+      ) : (
+        <button type="button" className={styles.cart} onClick={handleAddToCart}>
+          <ShoppingBag size={18} /> Add to bag
+        </button>
+      )}
     </motion.article>
   );
 }

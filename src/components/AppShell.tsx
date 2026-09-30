@@ -6,6 +6,7 @@ import Link from "next/link";
 import { CheckCircle2, LockKeyhole, Mail, Phone, UserRound, X, AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useCommerceStore } from "@/store/useCommerceStore";
 import { useUiStore } from "@/store/useUiStore";
 import styles from "./AppShell.module.css";
 
@@ -20,6 +21,7 @@ export function AppShell() {
   const login = useAuthStore((state) => state.login);
   const register = useAuthStore((state) => state.register);
   const initAuth = useAuthStore((state) => state.initAuth);
+  const initCommerce = useCommerceStore((state) => state.initCommerce);
   const isLoading = useAuthStore((state) => state.isLoading);
 
   // Form states
@@ -31,7 +33,8 @@ export function AppShell() {
 
   useEffect(() => {
     initAuth();
-  }, [initAuth]);
+    initCommerce();
+  }, [initAuth, initCommerce]);
 
   useEffect(() => {
     if (!cartToast) return;

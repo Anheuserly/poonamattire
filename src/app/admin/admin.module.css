@@ -30,7 +30,7 @@
 
 .stats span {
   color: var(--muted);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .panel {
@@ -85,7 +85,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius);
   color: var(--primary);
-  font-weight: 900;
+  font-weight: 600;
   min-height: 36px;
   padding: 0 12px;
 }

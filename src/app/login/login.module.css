@@ -17,7 +17,7 @@
   border-radius: var(--radius);
   color: var(--primary);
   display: inline-flex;
-  font-weight: 900;
+  font-weight: 600;
   gap: 10px;
   margin-top: 24px;
   padding: 14px 16px;
@@ -36,7 +36,7 @@
 .form label {
   color: var(--muted);
   display: grid;
-  font-weight: 900;
+  font-weight: 600;
   gap: 8px;
 }
 

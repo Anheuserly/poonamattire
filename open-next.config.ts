@@ -3,8 +3,11 @@ import {
   type OpenNextConfig,
 } from "@opennextjs/cloudflare";
 
+const baseConfig = defineCloudflareConfig();
+
 const config: OpenNextConfig = {
-  ...defineCloudflareConfig(),
+  ...baseConfig,
+  edgeExternals: [...(baseConfig.edgeExternals || []), "pg-cloudflare"],
   buildCommand: "next build",
 };
 

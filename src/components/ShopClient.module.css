@@ -24,7 +24,7 @@
 .filters label {
   color: var(--muted);
   display: grid;
-  font-weight: 900;
+  font-weight: 600;
   gap: 8px;
   margin-top: 16px;
 }
@@ -81,7 +81,7 @@
 
 .toolbar span {
   color: var(--muted);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .toolbar div {

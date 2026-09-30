@@ -1,57 +1,308 @@
 .footer {
-  background: #241017;
-  color: rgba(255, 255, 255, 0.78);
-  display: grid;
-  gap: 34px;
-  grid-template-columns: 1.6fr 0.8fr 1fr;
-  padding: 66px max(20px, calc((100vw - 1180px) / 2));
+  background: #1c0c12;
+  color: rgba(255, 255, 255, 0.72);
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+  padding: 64px max(24px, calc((100vw - 1200px) / 2)) 32px;
 }
 
-.footer h2,
-.footer h3 {
-  color: white;
+.socialBanner {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  border-radius: 12px;
+  margin-bottom: 56px;
+  padding: 36px 32px;
+}
+
+.socialBannerHeader {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.socialEyebrow {
+  color: #d4af37;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.socialTitle {
+  color: #ffffff;
   font-family: var(--font-playfair), Georgia, serif;
-  letter-spacing: 0;
+  font-size: 1.7rem;
+  font-weight: 500;
+  margin: 0 0 10px;
+}
+
+.socialSubtitle {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0 auto;
+  max-width: 640px;
+}
+
+.socialCardsGrid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.socialCard {
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  display: flex;
+  gap: 14px;
+  padding: 20px 16px;
+  text-decoration: none;
+  transition: all 220ms ease;
+}
+
+.socialCard:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(212, 175, 55, 0.45);
+  transform: translateY(-3px);
+}
+
+.ytCard:hover {
+  border-color: rgba(255, 0, 0, 0.5);
+  box-shadow: 0 12px 28px rgba(255, 0, 0, 0.12);
+}
+
+.igCard:hover {
+  border-color: rgba(225, 48, 108, 0.5);
+  box-shadow: 0 12px 28px rgba(225, 48, 108, 0.12);
+}
+
+.fbCard:hover {
+  border-color: rgba(24, 119, 242, 0.5);
+  box-shadow: 0 12px 28px rgba(24, 119, 242, 0.12);
+}
+
+.waCard:hover {
+  border-color: rgba(37, 211, 102, 0.5);
+  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.12);
+}
+
+.socialCardIconWrap {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  display: flex;
+  flex-shrink: 0;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+
+.socialCardContent {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.socialCardTop {
+  align-items: baseline;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.socialCardTop strong {
+  color: #ffffff;
+  font-size: 0.96rem;
+  font-weight: 600;
+}
+
+.socialHandle {
+  color: #d4af37;
+  font-size: 0.74rem;
+  font-weight: 500;
+}
+
+.socialCardContent p {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  margin: 0 0 10px;
+}
+
+.socialAction {
+  align-items: center;
+  color: #d4af37;
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 600;
+  gap: 4px;
+  margin-top: auto;
+  transition: gap 160ms ease;
+}
+
+.socialCard:hover .socialAction {
+  gap: 7px;
+}
+
+.container {
+  display: grid;
+  gap: 36px;
+  grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+  margin-bottom: 48px;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .logo {
-  border: 2px solid rgba(255, 255, 255, 0.62);
+  border: 2px solid rgba(212, 175, 55, 0.6);
   border-radius: 50%;
-  height: 82px;
-  margin-bottom: 16px;
+  height: 72px;
+  margin-bottom: 14px;
   object-fit: cover;
-  width: 82px;
+  width: 72px;
 }
 
-.footer h2 {
-  font-size: 2.4rem;
-  margin: 10px 0 16px;
+.eyebrow {
+  color: #d4af37;
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0;
+  font-weight: 600;
 }
 
-.footer h3 {
-  font-size: 1.2rem;
+.title {
+  color: #fff;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 2rem;
+  margin: 6px 0 12px;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+.description {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.68);
   margin-bottom: 16px;
+  max-width: 380px;
 }
 
-.footer p {
-  line-height: 1.8;
-  max-width: 520px;
-}
-
-.footer a,
-.footer span {
+.aboutStoryBtn {
+  color: #d4af37;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
   align-items: center;
+  gap: 6px;
+  transition: color 0.2s ease;
+}
+
+.aboutStoryBtn:hover {
+  color: #fff;
+}
+
+.column {
   display: flex;
+  flex-direction: column;
+}
+
+.column h3 {
+  color: #fff;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.15rem;
+  margin-bottom: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.column a {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.88rem;
+  text-decoration: none;
+  margin: 6px 0;
+  transition: all 0.2s ease;
+  line-height: 1.5;
+}
+
+.column a:hover {
+  color: #d4af37;
+  transform: translateX(2px);
+}
+
+.item {
+  align-items: center;
+  color: rgba(255, 255, 255, 0.72);
+  display: flex;
+  font-size: 0.85rem;
   gap: 10px;
-  margin: 11px 0;
+  margin: 7px 0;
+  line-height: 1.5;
 }
 
-.footer a:hover {
-  color: white;
+.bottomBar {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-@media (max-width: 820px) {
-  .footer {
+.bottomLinks {
+  display: flex;
+  gap: 20px;
+}
+
+.bottomLinks a {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.bottomLinks a:hover {
+  color: #d4af37;
+}
+
+@media (max-width: 960px) {
+  .socialCardsGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .container {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 600px) {
+  .socialBanner {
+    padding: 24px 16px;
+    margin-bottom: 36px;
+  }
+
+  .socialCardsGrid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .container {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .bottomBar {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

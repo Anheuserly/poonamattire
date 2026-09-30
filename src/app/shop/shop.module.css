@@ -57,7 +57,7 @@
 
 .toolbar span {
   color: var(--muted);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 @media (max-width: 900px) {

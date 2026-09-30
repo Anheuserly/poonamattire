@@ -70,7 +70,7 @@
 }
 
 .quantity span {
-  font-weight: 900;
+  font-weight: 600;
   min-width: 34px;
   text-align: center;
 }
@@ -87,7 +87,7 @@
 .summary label {
   color: var(--muted);
   display: grid;
-  font-weight: 900;
+  font-weight: 600;
   gap: 8px;
   margin: 20px 0;
 }
@@ -113,7 +113,7 @@
 .summary dl div:last-child {
   border-top: 1px solid var(--line);
   font-size: 1.25rem;
-  font-weight: 900;
+  font-weight: 600;
   padding-top: 14px;
 }
 

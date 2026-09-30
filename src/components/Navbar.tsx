@@ -19,12 +19,11 @@ import { useUiStore } from "@/store/useUiStore";
 import styles from "./Navbar.module.css";
 
 const navItems = [
-  { href: "/shop", label: "New In" },
+  { href: "/shop", label: "All Collections" },
   { href: "/shop?category=Festive", label: "Festive" },
-  { href: "/shop?category=Wedding", label: "Wedding" },
+  { href: "/shop?category=Wedding", label: "Wedding Guest" },
+  { href: "/shop?category=Occasion", label: "Occasion" },
   { href: "/shop?category=Workwear", label: "Workwear" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
 ];
 
 const accountLinks = [

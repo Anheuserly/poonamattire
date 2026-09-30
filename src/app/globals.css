@@ -76,9 +76,9 @@ main {
 
 .eyebrow {
   color: var(--primary);
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -86,23 +86,24 @@ main {
   color: var(--ink);
   font-family: var(--font-playfair), Georgia, serif;
   font-size: clamp(2.3rem, 6vw, 5.9rem);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 0.96;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
 }
 
 .title {
   font-family: var(--font-playfair), Georgia, serif;
   font-size: clamp(2rem, 4vw, 3.5rem);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.02;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
 }
 
 .copy {
   color: var(--muted);
   font-size: 1rem;
   line-height: 1.8;
+  font-weight: 400;
 }
 
 .button,
@@ -112,7 +113,7 @@ main {
   border: 1px solid transparent;
   border-radius: var(--radius);
   display: inline-flex;
-  font-weight: 800;
+  font-weight: 600;
   gap: 10px;
   justify-content: center;
   min-height: 44px;

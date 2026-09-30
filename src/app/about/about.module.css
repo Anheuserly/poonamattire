@@ -1,11 +1,15 @@
 .about {
+  display: block;
+}
+
+.heroGrid {
   align-items: center;
   display: grid;
   gap: 52px;
   grid-template-columns: 0.9fr 1.1fr;
 }
 
-.about img {
+.heroGrid img {
   aspect-ratio: 4 / 5;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -13,27 +17,28 @@
   width: 100%;
 }
 
-.about p:last-of-type {
-  margin-top: 20px;
-}
-
 .values {
   display: grid;
   gap: 12px;
-  margin-top: 28px;
+  margin-top: 24px;
 }
 
 .values span {
-  background: var(--surface);
+  background: white;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   color: var(--primary);
-  font-weight: 900;
-  padding: 16px;
+  font-weight: 600;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
 }
 
-@media (max-width: 800px) {
-  .about {
+@media (max-width: 860px) {
+  .heroGrid {
     grid-template-columns: 1fr;
+    gap: 32px;
   }
 }

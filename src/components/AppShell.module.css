@@ -26,7 +26,7 @@
   color: var(--primary);
   display: flex;
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 600;
   gap: 6px;
   margin-bottom: 5px;
   text-transform: uppercase;
@@ -48,7 +48,7 @@
   background: var(--primary);
   border-radius: 6px;
   color: white;
-  font-weight: 900;
+  font-weight: 600;
   padding: 12px 14px;
   white-space: nowrap;
 }
@@ -128,7 +128,7 @@
   border: 0;
   border-radius: 6px;
   color: var(--primary);
-  font-weight: 900;
+  font-weight: 600;
   min-height: 40px;
 }
 
@@ -145,7 +145,7 @@
 .form label {
   color: var(--muted);
   display: grid;
-  font-weight: 900;
+  font-weight: 600;
   gap: 8px;
 }
 

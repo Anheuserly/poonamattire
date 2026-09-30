@@ -29,7 +29,7 @@
 
 .memberCard span {
   color: rgba(255, 255, 255, 0.72);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .memberCard strong {
@@ -45,7 +45,7 @@
   border-radius: var(--radius);
   color: var(--primary);
   display: flex;
-  font-weight: 900;
+  font-weight: 600;
   justify-content: center;
   min-height: 42px;
   margin-top: 10px;
@@ -74,7 +74,7 @@
 
 .quickGrid span {
   color: var(--muted);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .quickGrid strong {
@@ -132,7 +132,7 @@
   background: var(--surface);
   border-radius: 999px;
   color: var(--primary);
-  font-weight: 900;
+  font-weight: 600;
   padding: 8px 12px;
 }
 
