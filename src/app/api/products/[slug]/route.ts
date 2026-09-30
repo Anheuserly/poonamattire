@@ -51,7 +51,17 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
     }
 
-    await query("DELETE FROM products WHERE slug = $1 OR id = $1", [slug]);
+    const cleanId = decodeURIComponent(slug).trim();
+    const found = await query(`SELECT id FROM products WHERE slug = $1 OR id = $1 LIMIT 1`, [cleanId]);
+    if (found.rowCount && found.rowCount > 0) {
+      const pId = found.rows[0].id;
+      await query(`DELETE FROM cart_items WHERE product_id = $1`, [pId]);
+      await query(`DELETE FROM product_images WHERE product_id = $1`, [pId]);
+      await query(`UPDATE order_items SET product_id = NULL WHERE product_id = $1`, [pId]);
+      await query(`DELETE FROM products WHERE id = $1`, [pId]);
+    } else {
+      await query("DELETE FROM products WHERE slug = $1 OR id = $1", [cleanId]);
+    }
 
     return NextResponse.json({ success: true, message: "Product deleted" });
   } catch (error: any) {
