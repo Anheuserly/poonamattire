@@ -150,7 +150,7 @@ export default function LoginPage() {
               <span>
                 <UserRound size={18} />
                 <input
-                  placeholder="Ananya Sharma"
+                  placeholder="Your Full Name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
