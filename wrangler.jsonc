@@ -22,5 +22,11 @@
   },
   "observability": {
     "enabled": true
+  },
+  "vars": {
+    "API_KEY_ADMIN": "PA_live_key_admin_portal_2026_poonam_hash",
+    "DATABASE_URL": "postgresql://postgres:AnheVps2022@vps.amcmep.in:5432/poonamattire",
+    "JWT_SECRET": "poonam_attire_super_secret_jwt_key_2026_festive",
+    "NEXT_PUBLIC_API_KEY": "PA_live_key_web_client_2026_poonam_hash"
   }
 }
